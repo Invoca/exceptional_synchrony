@@ -5,6 +5,7 @@ PATH
       em-http-request
       em-synchrony (~> 1.0.3)
       eventmachine (~> 1.0.3)
+      hobo_support
 
 GEM
   remote: https://rubygems.org/
@@ -109,7 +110,6 @@ PLATFORMS
 
 DEPENDENCIES
   exceptional_synchrony!
-  hobo_support
   minitest
   rr (~> 1.1.2)
   thor

@@ -15,11 +15,11 @@ Gem::Specification.new do |gem|
   gem.add_dependency 'eventmachine', '~> 1.0.3'
   gem.add_dependency 'em-synchrony', '~> 1.0.3'
   gem.add_dependency 'em-http-request'
+  gem.add_dependency 'hobo_support'
 
   gem.add_development_dependency 'thor'
   gem.add_development_dependency 'minitest'
   gem.add_development_dependency 'rr', '~> 1.1.2'
-  gem.add_development_dependency 'hobo_support'
 
   gem.add_development_dependency 'webmock', '~> 1.17.1'
 end

@@ -1,3 +1,6 @@
+require 'hobo_support' # Not sure why bundler isn't requiring this automatically? -Colin
+require 'em-synchrony/em-http'
+
 module ExceptionalSynchrony
 end
 

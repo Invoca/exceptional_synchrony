@@ -18,8 +18,7 @@ class Dev < Thor
     Bundler.require(:default)
     $VERBOSE = old
 
-    require 'minitest/autorun'
-    require 'minitest/pride'
+    require 'webmock'
     require './test/test_helper.rb'
 
     # Minitest is very bad and piggy backs on the Global arguments just like everyone else.

@@ -28,7 +28,7 @@ module ExceptionalSynchrony
     def run_all!
       original_fiber = Fiber.current
 
-      @responses = (0...@jobs.size).to_a.build_hash { |key| [key, nil] } # initialize in sorted order so we don't have to sort later
+      @responses = (0...@jobs.size).build_hash { |key| [key, nil] } # initialize in sorted order so we don't have to sort later
 
       @jobs.each_with_index do |job, index|
         run_and_finish = lambda do |*args|
