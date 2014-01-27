@@ -12,13 +12,8 @@ class Dev < Thor
     ENV['RACK_ENV'] = 'test'
 
     require 'bundler'
-    Bundler.require(:default, :test)
+    Bundler.require(:default, :development)
 
-    (old, $VERBOSE) = [$VERBOSE, nil]
-    Bundler.require(:default)
-    $VERBOSE = old
-
-    require 'webmock'
     require './test/test_helper.rb'
 
     # Minitest is very bad and piggy backs on the Global arguments just like everyone else.
