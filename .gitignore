@@ -11,6 +11,29 @@ Icon
 .Spotlight-V100
 .Trashes
 
+# Numerous always-ignore extensions
+*.diff
+*.err
+*.orig
+*.rej
+*.vi
+
+# OS or Editor folders
+.cache
+.project
+.settings
+.tmproj
+nbproject
+Thumbs.db
+
+# Folders to ignore
+.hg
+.svn
+.CVS
+intermediate
+publish
+.bundle
+
 # Vim
 *.s[a-w][a-z]
 *.un~

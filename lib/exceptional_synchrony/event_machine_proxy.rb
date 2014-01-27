@@ -82,4 +82,6 @@ module ExceptionalSynchrony
       end
     end
   end
+
+  EMP = EventMachineProxy
 end

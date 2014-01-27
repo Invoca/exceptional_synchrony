@@ -1,6 +1,8 @@
+require_relative '../test_helper'
+
 describe PNAPI::LimitedFrontEndProxy do
-  include ShowHelper
-  include TestHelper
+  # include ShowHelper
+  # include TestHelper
 
   describe "when created" do
     before do

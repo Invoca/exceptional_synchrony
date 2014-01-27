@@ -1,3 +1,5 @@
+require_relative '../test_helper'
+
 describe ExceptionalSynchrony::ParallelSync do
   before do
     @em = ExceptionalSynchrony::EventMachineProxy.new(EventMachine, nil)
