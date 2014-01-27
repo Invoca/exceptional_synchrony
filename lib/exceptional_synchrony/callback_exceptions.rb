@@ -11,7 +11,8 @@ module ExceptionalSynchrony
       def map_deferred_result(deferrable)
         deferred_status = deferrable.instance_variable_get(:@deferred_status)
         deferred_args = deferrable.instance_variable_get(:@deferred_args)
-        result = deferred_args._?.size == 1 ? deferred_args.first : deferred_args
+        result = (deferred_args && deferred_args.size == 1) ? deferred_args.first : deferred_args
+
         case deferred_status
         when :succeeded
           if result.is_a?(Exception)
@@ -20,7 +21,7 @@ module ExceptionalSynchrony
             result
           end
         when :failed
-          if result.try.error =~ /timeout/i
+          if result.respond_to?(:error) && result.error =~ /timeout/i
             raise Timeout::Error
           else
             raise Failure, result.inspect

@@ -1,3 +1,5 @@
+require_relative '../test_helper'
+
 describe ExceptionalSynchrony::CallbackExceptions do
   describe "ensure_callback" do
     it "should execute succeed with return value" do
