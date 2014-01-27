@@ -1,8 +1,6 @@
 require_relative '../test_helper'
 
 describe ExceptionalSynchrony::EventMachineProxy do
-  include TestHelper
-
   before do
     @em = ExceptionalSynchrony::EventMachineProxy.new(EventMachine, nil)
     @yielded_value = nil

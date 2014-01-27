@@ -13,5 +13,8 @@ Gem::Specification.new do |s|
   s.version     = ExceptionalSynchrony::VERSION
 
   s.add_runtime_dependency 'eventmachine', '~> 1.0.3'
+  s.add_runtime_dependency 'em-synchrony', '~> 1.0.3'
+
   s.add_development_dependency 'rr', '~> 1.1.2'
+  s.add_development_dependency 'webmock', '~> 1.17.1'
 end
