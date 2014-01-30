@@ -1,5 +1,9 @@
 # This class is for Dependency Injection of EventMachine.  All EventMachine interactions should go through here.
 
+require 'eventmachine'
+require 'em-http'
+require 'em-synchrony/em-http'
+
 module ExceptionalSynchrony
   class EventMachineProxy
 
@@ -83,5 +87,5 @@ module ExceptionalSynchrony
     end
   end
 
-  EMP = EventMachineProxy
+  EMP = EventMachineProxy.new(EventMachine, EventMachine::HttpRequest)
 end

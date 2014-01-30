@@ -1,20 +1,26 @@
 require File.expand_path('../lib/exceptional_synchrony/version', __FILE__)
 
-Gem::Specification.new do |s|
-  s.name        = 'exceptional_synchrony'
-  s.date        = '2014-01-16'
-  s.summary     = 'Extensions to EventMachine/Synchrony to work well with exceptions'
-  s.description = %q{}
-  s.authors     = ['Colin Kelley']
-  s.email       = 'colin@invoca.com'
-  s.homepage    = 'https://github.com/Invoca/exceptional_synchrony'
-  s.license     = 'MIT'
-  s.files       = `git ls-files`.split($/)
-  s.version     = ExceptionalSynchrony::VERSION
+Gem::Specification.new do |gem|
+  gem.name        = 'exceptional_synchrony'
+  gem.date        = '2014-01-16'
+  gem.summary     = 'Extensions to EventMachine/Synchrony to work well with exceptions'
+  gem.description = %q{}
+  gem.authors     = ['Colin Kelley']
+  gem.email       = 'colin@invoca.com'
+  gem.homepage    = 'https://github.com/Invoca/exceptional_synchrony'
+  gem.license     = 'MIT'
+  gem.files       = `git ls-files`.split($/)
+  gem.version     = ExceptionalSynchrony::VERSION
 
-  s.add_runtime_dependency 'eventmachine', '~> 1.0.3'
-  s.add_runtime_dependency 'em-synchrony', '~> 1.0.3'
+  gem.add_dependency 'exception_handling'
+  gem.add_dependency 'eventmachine', '~> 1.0.3'
+  gem.add_dependency 'em-synchrony', '~> 1.0.3'
+  gem.add_dependency 'em-http-request'
+  gem.add_dependency 'hobo_support'
 
-  s.add_development_dependency 'rr', '~> 1.1.2'
-  s.add_development_dependency 'webmock', '~> 1.17.1'
+  gem.add_development_dependency 'thor'
+  gem.add_development_dependency 'minitest'
+  gem.add_development_dependency 'webmock', '~> 1.17.1'
+
+  gem.add_development_dependency 'rr', '~> 1.1.2'
 end

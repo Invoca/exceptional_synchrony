@@ -1,3 +1,4 @@
+require 'fiber'
 require 'set'
 
 module ExceptionalSynchrony
