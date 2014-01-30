@@ -12,7 +12,7 @@ class Dev < Thor
     ENV['RACK_ENV'] = 'test'
 
     require 'bundler'
-    Bundler.require(:default, :development)
+    Bundler.setup(:default, :development)
 
     require './test/test_helper.rb'
 
