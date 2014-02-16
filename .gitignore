@@ -33,6 +33,7 @@ Thumbs.db
 intermediate
 publish
 .bundle
+pkg/
 
 # Vim
 *.s[a-w][a-z]
