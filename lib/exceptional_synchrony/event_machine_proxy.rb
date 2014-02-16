@@ -15,6 +15,10 @@ module ExceptionalSynchrony
       @proxy_class = proxy_class
       @synchrony = defined?(@proxy_class::Synchrony) ?  @proxy_class::Synchrony : @proxy_class
       @connection = connection_class
+
+      proxy_class.error_handler do |error|
+        ExceptionHandling.log_error(error, "ExceptionalSynchrony uncaught exception: ")
+      end
     end
 
     def add_timer(seconds, &block)
@@ -47,6 +51,7 @@ module ExceptionalSynchrony
 
     def stop
       @proxy_class.stop
+      @proxy_class.next_tick { } #Fake out EventMachine's epoll mechanism so we don't block until timers fire
     end
 
     def connect(server, port = nil, handler = nil, *args, &block)

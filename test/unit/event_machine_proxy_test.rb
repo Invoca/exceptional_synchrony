@@ -31,6 +31,7 @@ describe ExceptionalSynchrony::EventMachineProxy do
 
   it "should proxy stop" do
     mock(EventMachine).stop
+    mock(EventMachine).next_tick
     @em.stop
   end
 
@@ -81,6 +82,8 @@ describe ExceptionalSynchrony::EventMachineProxy do
             block.(:run)
           end
         end
+
+        mock(proxy_mock).error_handler
 
         proxy = ExceptionalSynchrony::EventMachineProxy.new(proxy_mock, nil)
 
