@@ -41,6 +41,10 @@ module ExceptionalSynchrony
       @synchrony.sleep(seconds)
     end
 
+    def yield_to_reactor
+      @synchrony.sleep(0)
+    end
+
     def next_tick(&block)
       @synchrony.next_tick do
         ensure_completely_safe("next_tick") do

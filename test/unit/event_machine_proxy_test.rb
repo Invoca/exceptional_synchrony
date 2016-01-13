@@ -42,6 +42,11 @@ describe ExceptionalSynchrony::EventMachineProxy do
     @yielded_value.must_equal :called
   end
 
+  it "should have a #yield_to_reactor to give control to other threads" do
+    mock(EventMachine::Synchrony).sleep(0)
+    @em.yield_to_reactor
+  end
+
   EXCEPTION = ArgumentError.new('in block')
 
   describe "blocks should be wrapped in ensure_completely_safe" do
