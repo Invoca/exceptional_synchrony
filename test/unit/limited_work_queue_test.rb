@@ -221,27 +221,43 @@ describe ExceptionalSynchrony::LimitedWorkQueue do
         @queue.work!
         assert_equal 0, c
       end
+    end
 
-      it "should properly determine if the queue's workers are full" do
-        @queue.instance_variable_set(:@worker_count, 20)
-        @queue.instance_variable_set(:@limit, 10)
-
-        assert_equal true, @queue.workers_full?
-
-        @queue.instance_variable_set(:@worker_count, 10)
-        @queue.instance_variable_set(:@limit, 10)
-
-        assert_equal true, @queue.workers_full?
-
-        @queue.instance_variable_set(:@worker_count, 5)
-        @queue.instance_variable_set(:@limit, 10)
-
-        assert_equal false, @queue.workers_full?
+    describe "when calling #workers_full?" do
+      before do
+        @queue = ExceptionalSynchrony::LimitedWorkQueue.new(@em, 2)
       end
 
-      it "should properly determine if the queue is empty" do
+      it "should return true if the number of workers is greater than the limit" do
+        @queue.instance_variable_set(:@worker_count, 20)
+        @queue.instance_variable_set(:@limit, 10)
+        assert_equal true, @queue.workers_full?
+      end
+
+      it "should return true if the number of workers is euqal to the limit" do
+        @queue.instance_variable_set(:@worker_count, 10)
+        @queue.instance_variable_set(:@limit, 10)
+        assert_equal true, @queue.workers_full?
+      end
+
+      it "should return false if the number of workers is less than the limit" do
+        @queue.instance_variable_set(:@worker_count, 5)
+        @queue.instance_variable_set(:@limit, 10)
+        assert_equal false, @queue.workers_full?
+      end
+    end
+
+    describe "when calling #workers_full?" do
+      before do
+        @queue = ExceptionalSynchrony::LimitedWorkQueue.new(@em, 2)
+      end
+
+      it "should return true if queue is empty" do
         @queue.instance_variable_set(:@job_procs, [])
         assert_equal true, @queue.queue_empty?
+      end
+
+      it "should return false if queue is not empty" do
         @queue.instance_variable_set(:@job_procs, [Proc.new { "hello"}])
         assert_equal false, @queue.queue_empty?
       end

@@ -50,7 +50,7 @@ module ExceptionalSynchrony
         end.resume
       end
     end
-    \
+
     private
     def worker_done
       @worker_count -= 1
