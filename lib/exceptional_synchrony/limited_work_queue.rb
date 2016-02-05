@@ -1,11 +1,15 @@
 module ExceptionalSynchrony
   class LimitedWorkQueue
+
+    attr_accessor :paused
+
     def initialize(em, limit)
       @em = em
       limit > 0 or raise ArgumentError, "limit must be positive"
       @limit = limit
       @worker_count = 0
       @job_procs = []
+      @paused = false
     end
 
     # Adds a job_proc to work.
@@ -17,7 +21,7 @@ module ExceptionalSynchrony
       else
         @job_procs << job
       end
-      work!
+      work! unless paused?
     end
 
     def workers_empty?
@@ -32,7 +36,10 @@ module ExceptionalSynchrony
       @job_procs.empty?
     end
 
-    private
+    def paused?
+      @paused
+    end
+
     def work!
       until queue_empty? || workers_full?
         job_proc = @job_procs.shift
@@ -43,7 +50,8 @@ module ExceptionalSynchrony
         end.resume
       end
     end
-
+    \
+    private
     def worker_done
       @worker_count -= 1
       work!

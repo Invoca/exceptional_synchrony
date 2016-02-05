@@ -135,5 +135,117 @@ describe ExceptionalSynchrony::LimitedWorkQueue do
         assert started2 > ended0 || started2 > ended1, [ended0, ended1, started2].inspect
       end
     end
+
+    describe "add method" do
+      it "should not run jobs added to the queue after the queue is paused" do
+        @queue.paused = true
+        assert_equal true, @queue.paused?
+        c = 0
+        ExceptionalSynchrony::EMP.run_and_stop do
+          3.times { @queue.add { c+=1 } }
+        end
+
+        mock(@queue).work!.never
+        assert_equal 3, @queue.instance_variable_get("@job_procs").size
+        assert_equal 0, c
+      end
+
+      it "should run jobs already in queue, before the queue is paused, but should not run jobs added after the pause" do
+        c = 0
+
+        ExceptionalSynchrony::EMP.run_and_stop do
+          3.times { @queue.add { c+=1 } }
+          @em.sleep(0.0750)
+          @queue.paused = true
+          6.times { @queue.add { c+=2 } }
+          @em.sleep(0.0750)
+        end
+
+        assert_equal 3, c
+        assert_equal 6, @queue.instance_variable_get("@job_procs").size
+      end
+    end
+
+    describe "when calling #work!" do
+      before do
+        @queue = ExceptionalSynchrony::LimitedWorkQueue.new(@em, 2)
+      end
+
+      it "should run items in queue" do
+        c = 0
+        job_procs = (0..2).map { Proc.new { c += 1} }
+
+        @queue.instance_variable_set(:@job_procs, job_procs)
+        mock.proxy(Fiber).new.with_any_args.times(3)
+        @queue.work!
+
+        assert_equal 0, @queue.instance_variable_get("@job_procs").size
+        assert_equal 3, c
+      end
+
+      it "should run items added to queue, even if queue is paused" do
+        @queue.paused = true
+        c = 4
+        job_procs = (0..2).map { Proc.new { c += 1} }
+        @queue.instance_variable_set(:@job_procs, job_procs)
+        assert_equal 3, @queue.instance_variable_get("@job_procs").size
+        mock.proxy(Fiber).new.with_any_args.times(3)
+
+        @queue.work!
+
+        assert_equal 7, c
+        assert_equal 0, @queue.instance_variable_get("@job_procs").size
+      end
+
+      it "should not run if queue_empty" do
+        stub(@queue).queue_empty? { true }
+        c = 0
+        job_procs = (0..2).map { Proc.new { c += 1} }
+        @queue.instance_variable_set(:@job_procs, job_procs)
+        assert_equal 3, @queue.instance_variable_get("@job_procs").size
+        mock(Fiber).new.never
+
+        @queue.work!
+        assert_equal 0, c
+      end
+
+      it "should not run if workers is full" do
+        stub(@queue).workers_full? { true }
+        c = 0
+        job_procs = (0..2).map { Proc.new { c += 1} }
+        @queue.instance_variable_set(:@job_procs, job_procs)
+
+        assert_equal 3, @queue.instance_variable_get("@job_procs").size
+        mock(Fiber).new.never
+
+        @queue.work!
+        assert_equal 0, c
+      end
+
+      it "should properly determine if the queue's workers are full" do
+        @queue.instance_variable_set(:@worker_count, 20)
+        @queue.instance_variable_set(:@limit, 10)
+
+        assert_equal true, @queue.workers_full?
+
+        @queue.instance_variable_set(:@worker_count, 10)
+        @queue.instance_variable_set(:@limit, 10)
+
+        assert_equal true, @queue.workers_full?
+
+        @queue.instance_variable_set(:@worker_count, 5)
+        @queue.instance_variable_set(:@limit, 10)
+
+        assert_equal false, @queue.workers_full?
+      end
+
+      it "should properly determine if the queue is empty" do
+        @queue.instance_variable_set(:@job_procs, [])
+        assert_equal true, @queue.queue_empty?
+        @queue.instance_variable_set(:@job_procs, [Proc.new { "hello"}])
+        assert_equal false, @queue.queue_empty?
+      end
+    end
+
   end
 end
