@@ -1,8 +1,6 @@
 module ExceptionalSynchrony
   class LimitedWorkQueue
 
-    attr_accessor :paused
-
     def initialize(em, limit)
       @em = em
       limit > 0 or raise ArgumentError, "limit must be positive"
@@ -38,6 +36,14 @@ module ExceptionalSynchrony
 
     def paused?
       @paused
+    end
+
+    def pause!
+      @paused = true
+    end
+
+    def unpause!
+      @paused = false
     end
 
     def work!

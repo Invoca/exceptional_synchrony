@@ -136,129 +136,166 @@ describe ExceptionalSynchrony::LimitedWorkQueue do
       end
     end
 
-    describe "add method" do
-      it "should not run jobs added to the queue after the queue is paused" do
-        @queue.paused = true
-        assert_equal true, @queue.paused?
-        c = 0
+    describe '#paused?' do
+      it 'should return false when @paused is false' do
+        @queue.instance_variable_set(:@paused, false)
+        assert_equal false, @queue.paused?
+      end
+
+      it 'should return true when @paused is true' do
+        @queue.instance_variable_set(:@paused, false)
+        assert_equal false, @queue.paused?
+      end
+    end
+
+    describe '#pause!' do
+      it 'should set @paused to true if @paused is currently false' do
+        assert_equal false, @queue.instance_variable_get('@paused')
+        @queue.pause!
+        assert_equal true, @queue.instance_variable_get('@paused')
+      end
+
+      it 'should set @paused to true if @paused is currently true' do
+        @queue.instance_variable_set(:@paused, true)
+        assert_equal true, @queue.instance_variable_get('@paused')
+        @queue.pause!
+        assert_equal true, @queue.instance_variable_get('@paused')
+      end
+    end
+
+    describe '#unpause!' do
+      it 'should set @paused to false if @paused is currently false' do
+        assert_equal false, @queue.instance_variable_get('@paused')
+        @queue.unpause!
+        assert_equal false, @queue.instance_variable_get('@paused')
+      end
+
+      it 'should set @paused to false if @paused is currently true' do
+        @queue.instance_variable_set(:@paused, true)
+        assert_equal true, @queue.instance_variable_get('@paused')
+        @queue.unpause!
+        assert_equal false, @queue.instance_variable_get('@paused')
+      end
+    end
+
+    describe '#add' do
+      it 'should run jobs added to the queue when paused is false' do
+        assert_equal false, @queue.paused? # queue#paused is false be default
+        counter = 0
         ExceptionalSynchrony::EMP.run_and_stop do
-          3.times { @queue.add { c+=1 } }
+          3.times { @queue.add { counter+=1 } }
+        end
+
+        assert_equal 0, @queue.instance_variable_get("@job_procs").size
+        assert_equal 3, counter
+      end
+
+      it 'should not run jobs added to the queue when paused is true' do
+        @queue.pause!
+        assert_equal true, @queue.paused?
+        counter = 0
+        ExceptionalSynchrony::EMP.run_and_stop do
+          3.times { @queue.add { counter+=1 } }
         end
 
         mock(@queue).work!.never
         assert_equal 3, @queue.instance_variable_get("@job_procs").size
-        assert_equal 0, c
-      end
-
-      it "should run jobs already in queue, before the queue is paused, but should not run jobs added after the pause" do
-        c = 0
-
-        ExceptionalSynchrony::EMP.run_and_stop do
-          3.times { @queue.add { c+=1 } }
-          @em.sleep(0.0750)
-          @queue.paused = true
-          6.times { @queue.add { c+=2 } }
-          @em.sleep(0.0750)
-        end
-
-        assert_equal 3, c
-        assert_equal 6, @queue.instance_variable_get("@job_procs").size
+        assert_equal 0, counter
       end
     end
 
-    describe "when calling #work!" do
+    describe '#work!' do
       before do
         @queue = ExceptionalSynchrony::LimitedWorkQueue.new(@em, 2)
       end
 
-      it "should run items in queue" do
-        c = 0
-        job_procs = (0..2).map { Proc.new { c += 1} }
-
+      it 'should run items in queue' do
+        counter = 0
+        job_procs = Array.new(3) { Proc.new { counter += 1} }
         @queue.instance_variable_set(:@job_procs, job_procs)
         mock.proxy(Fiber).new.with_any_args.times(3)
         @queue.work!
 
         assert_equal 0, @queue.instance_variable_get("@job_procs").size
-        assert_equal 3, c
+        assert_equal 3, counter
       end
 
-      it "should run items added to queue, even if queue is paused" do
-        @queue.paused = true
-        c = 4
-        job_procs = (0..2).map { Proc.new { c += 1} }
+      it 'should run items already in queue, even if queue is paused' do
+        @queue.pause!
+        counter = 4
+        job_procs = Array.new(3) { Proc.new { counter += 1} }
         @queue.instance_variable_set(:@job_procs, job_procs)
         assert_equal 3, @queue.instance_variable_get("@job_procs").size
         mock.proxy(Fiber).new.with_any_args.times(3)
 
         @queue.work!
 
-        assert_equal 7, c
+        assert_equal 7, counter
         assert_equal 0, @queue.instance_variable_get("@job_procs").size
       end
 
-      it "should not run if queue_empty" do
+      it 'should not run if queue_empty' do
         stub(@queue).queue_empty? { true }
-        c = 0
-        job_procs = (0..2).map { Proc.new { c += 1} }
+        counter = 0
+        job_procs = Array.new(3) { Proc.new { counter += 1} }
         @queue.instance_variable_set(:@job_procs, job_procs)
         assert_equal 3, @queue.instance_variable_get("@job_procs").size
         mock(Fiber).new.never
 
         @queue.work!
-        assert_equal 0, c
+        assert_equal 0, counter
       end
 
-      it "should not run if workers is full" do
+      it 'should not run if workers are full' do
         stub(@queue).workers_full? { true }
-        c = 0
-        job_procs = (0..2).map { Proc.new { c += 1} }
+        counter = 0
+        job_procs = Array.new(3) { Proc.new { counter += 1} }
         @queue.instance_variable_set(:@job_procs, job_procs)
 
         assert_equal 3, @queue.instance_variable_get("@job_procs").size
         mock(Fiber).new.never
 
         @queue.work!
-        assert_equal 0, c
+        assert_equal 0, counter
       end
     end
 
-    describe "when calling #workers_full?" do
+    describe '#workers_full?' do
       before do
-        @queue = ExceptionalSynchrony::LimitedWorkQueue.new(@em, 2)
+        @queue = ExceptionalSynchrony::LimitedWorkQueue.new(@em, 2) # limit the number of active workers to 2 max
       end
 
-      it "should return true if the number of workers is greater than the limit" do
+      it 'should return true if the number of current workers is greater than the queue\'s defined worker limit' do
         @queue.instance_variable_set(:@worker_count, 20)
         @queue.instance_variable_set(:@limit, 10)
         assert_equal true, @queue.workers_full?
       end
 
-      it "should return true if the number of workers is euqal to the limit" do
+      it 'should return true if the current number of workers is equal to the queue\'s defined worker limit' do
         @queue.instance_variable_set(:@worker_count, 10)
         @queue.instance_variable_set(:@limit, 10)
         assert_equal true, @queue.workers_full?
       end
 
-      it "should return false if the number of workers is less than the limit" do
+      it 'should return false if the current number of workers is less than the queue\'s defined worker limit' do
         @queue.instance_variable_set(:@worker_count, 5)
         @queue.instance_variable_set(:@limit, 10)
         assert_equal false, @queue.workers_full?
       end
     end
 
-    describe "when calling #workers_full?" do
+    describe '#queue_empty?' do
       before do
         @queue = ExceptionalSynchrony::LimitedWorkQueue.new(@em, 2)
       end
 
-      it "should return true if queue is empty" do
+      it 'should return true if queue is empty' do
         @queue.instance_variable_set(:@job_procs, [])
         assert_equal true, @queue.queue_empty?
       end
 
-      it "should return false if queue is not empty" do
-        @queue.instance_variable_set(:@job_procs, [Proc.new { "hello"}])
+      it 'should return false if queue is not empty' do
+        @queue.instance_variable_set(:@job_procs, [Proc.new { 'hello'}])
         assert_equal false, @queue.queue_empty?
       end
     end
