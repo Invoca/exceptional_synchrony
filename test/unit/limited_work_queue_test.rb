@@ -179,7 +179,7 @@ describe ExceptionalSynchrony::LimitedWorkQueue do
     end
 
     describe '#add' do
-      it 'should run jobs added to the queue when paused is false' do
+      it 'should run jobs added to the queue when paused? is false' do
         assert_equal false, @queue.paused? # queue#paused is false be default
         counter = 0
         ExceptionalSynchrony::EMP.run_and_stop do
@@ -190,7 +190,7 @@ describe ExceptionalSynchrony::LimitedWorkQueue do
         assert_equal 3, counter
       end
 
-      it 'should not run jobs added to the queue when paused is true' do
+      it 'should not run jobs added to the queue when paused? is true' do
         @queue.pause!
         assert_equal true, @queue.paused?
         counter = 0
