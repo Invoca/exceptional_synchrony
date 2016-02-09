@@ -46,7 +46,7 @@ module ExceptionalSynchrony
       @paused = false
     end
 
-    def queue
+    def items
       @job_procs
     end
 
