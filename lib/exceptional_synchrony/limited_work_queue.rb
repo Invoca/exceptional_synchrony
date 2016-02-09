@@ -1,8 +1,6 @@
 module ExceptionalSynchrony
   class LimitedWorkQueue
 
-    attr_reader :job_procs
-
     def initialize(em, limit)
       @em = em
       limit > 0 or raise ArgumentError, "limit must be positive"
@@ -46,6 +44,10 @@ module ExceptionalSynchrony
 
     def unpause!
       @paused = false
+    end
+
+    def queue
+      @job_procs
     end
 
     def work!

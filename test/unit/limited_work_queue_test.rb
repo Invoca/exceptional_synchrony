@@ -204,6 +204,15 @@ describe ExceptionalSynchrony::LimitedWorkQueue do
       end
     end
 
+    describe '#queue' do
+      it 'should return job_procs array' do
+        assert_equal 0, @queue.queue.size
+        job_procs = Array.new(3) { Proc.new { puts 'Hello World' } }
+        @queue.instance_variable_set(:@job_procs, job_procs)
+        assert_equal 3, @queue.queue.size
+      end
+    end
+
     describe '#work!' do
       before do
         @queue = ExceptionalSynchrony::LimitedWorkQueue.new(@em, 2)
