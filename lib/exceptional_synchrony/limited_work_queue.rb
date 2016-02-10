@@ -11,7 +11,7 @@ module ExceptionalSynchrony
     end
 
     # Adds a job_proc to work.
-    def add(proc = nil, &block)
+    def add!(proc = nil, &block)
       job = proc || block
       job.respond_to?(:call) or raise "Must respond_to?(:call)! #{job.inspect}"
       if @job_procs.any? && job.respond_to?(:merge) && (merged_queue = job.merge(@job_procs))
@@ -21,6 +21,7 @@ module ExceptionalSynchrony
       end
       work! unless paused?
     end
+    alias_method :add, :add!
 
     def workers_empty?
       @worker_count.zero?

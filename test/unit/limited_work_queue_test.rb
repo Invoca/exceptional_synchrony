@@ -21,9 +21,9 @@ describe ExceptionalSynchrony::LimitedWorkQueue do
     it "should run non-blocking jobs immediately" do
       c = 0
       ExceptionalSynchrony::EMP.run_and_stop do
-        @queue.add { c+=1 }
-        @queue.add { c+=1 }
-        @queue.add { c+=1 }
+        @queue.add! { c+=1 }
+        @queue.add! { c+=1 }
+        @queue.add! { c+=1 }
       end
       assert_equal 3, c
     end
@@ -46,9 +46,9 @@ describe ExceptionalSynchrony::LimitedWorkQueue do
     it "should allow objects to be queued instead of Procs" do
       c = 0
       ExceptionalSynchrony::EMP.run_and_stop do
-        @queue.add(LWQTestProc.new { c+=1 })
-        @queue.add(LWQTestProc.new { c+=1 })
-        @queue.add(LWQTestProc.new { c+=1 })
+        @queue.add!(LWQTestProc.new { c+=1 })
+        @queue.add!(LWQTestProc.new { c+=1 })
+        @queue.add!(LWQTestProc.new { c+=1 })
       end
       assert_equal 3, c
     end
@@ -71,17 +71,17 @@ describe ExceptionalSynchrony::LimitedWorkQueue do
       end
 
       ExceptionalSynchrony::EMP.run_and_stop do
-        @queue.add(job_proc)
+        @queue.add!(job_proc)
       end
     end
 
     it "should allow objects to merge themselves into the queue (canceling itself)" do
       c = 0
       ExceptionalSynchrony::EMP.run_and_stop do
-        @queue.add(LWQTestProc.new { @em.sleep(0.001); c+=1 })
-        @queue.add(LWQTestProc.new { @em.sleep(0.001); c+=2 })
-        @queue.add(LWQTestProcWithMergeDrop.new(-> { c+=4 }) { @em.sleep(0.001); c+=8 })
-        @queue.add(LWQTestProcWithMergeDrop.new(-> { c+=16 }) { @em.sleep(0.001); c+=32 }) # will get merged (by canceling self)
+        @queue.add!(LWQTestProc.new { @em.sleep(0.001); c+=1 })
+        @queue.add!(LWQTestProc.new { @em.sleep(0.001); c+=2 })
+        @queue.add!(LWQTestProcWithMergeDrop.new(-> { c+=4 }) { @em.sleep(0.001); c+=8 })
+        @queue.add!(LWQTestProcWithMergeDrop.new(-> { c+=16 }) { @em.sleep(0.001); c+=32 }) # will get merged (by canceling self)
         @em.sleep(0.050)
       end
       assert_equal 1+2+8+16, c
@@ -99,10 +99,10 @@ describe ExceptionalSynchrony::LimitedWorkQueue do
     it "should allow objects to merge themselves into the queue (canceling/replacing earlier)" do
       c = 0
       ExceptionalSynchrony::EMP.run_and_stop do
-        @queue.add(LWQTestProc.new { @em.sleep(0.001); c+=1 })
-        @queue.add(LWQTestProc.new { @em.sleep(0.001); c+=2 })
-        @queue.add(LWQTestProcWithMergeReplace.new(-> { c+=4 }) { @em.sleep(0.001); c+=8 })
-        @queue.add(LWQTestProcWithMergeReplace.new(-> { c+=16 }) { @em.sleep(0.001); c+=32 }) # will get merged with above (replacing above)
+        @queue.add!(LWQTestProc.new { @em.sleep(0.001); c+=1 })
+        @queue.add!(LWQTestProc.new { @em.sleep(0.001); c+=2 })
+        @queue.add!(LWQTestProcWithMergeReplace.new(-> { c+=4 }) { @em.sleep(0.001); c+=8 })
+        @queue.add!(LWQTestProcWithMergeReplace.new(-> { c+=16 }) { @em.sleep(0.001); c+=32 }) # will get merged with above (replacing above)
         @em.sleep(0.050)
       end
       assert_equal 1+2+4+32, c
@@ -121,9 +121,9 @@ describe ExceptionalSynchrony::LimitedWorkQueue do
       ExceptionalSynchrony::EMP.run_and_stop do
         c = -1
         started2 = nil; ended0 = nil; ended1 = nil
-        @queue.add { c+=1; @em.sleep(0.001); ExceptionalSynchrony::EMP.connection.new("http://www.google.com").get; ended0 = c+=1 }
-        @queue.add { c+=1; @em.sleep(0.001); ExceptionalSynchrony::EMP.connection.new("http://www.cnn.com").get; ended1 = c+=1 }
-        @queue.add { started2 = c+=1; ExceptionalSynchrony::EMP.connection.new("http://news.ycombinator.com").get; c+=1 }
+        @queue.add! { c+=1; @em.sleep(0.001); ExceptionalSynchrony::EMP.connection.new("http://www.google.com").get; ended0 = c+=1 }
+        @queue.add! { c+=1; @em.sleep(0.001); ExceptionalSynchrony::EMP.connection.new("http://www.cnn.com").get; ended1 = c+=1 }
+        @queue.add! { started2 = c+=1; ExceptionalSynchrony::EMP.connection.new("http://news.ycombinator.com").get; c+=1 }
 
         3.times do
           @em.sleep(0.005)
@@ -178,12 +178,12 @@ describe ExceptionalSynchrony::LimitedWorkQueue do
       end
     end
 
-    describe '#add' do
+    describe '#add!' do
       it 'should run jobs added to the queue when paused? is false' do
         assert_equal false, @queue.paused? # queue#paused is false be default
         counter = 0
         ExceptionalSynchrony::EMP.run_and_stop do
-          3.times { @queue.add { counter+=1 } }
+          3.times { @queue.add! { counter+=1 } }
         end
 
         assert_equal 0, @queue.instance_variable_get("@job_procs").size
@@ -195,12 +195,16 @@ describe ExceptionalSynchrony::LimitedWorkQueue do
         assert_equal true, @queue.paused?
         counter = 0
         ExceptionalSynchrony::EMP.run_and_stop do
-          3.times { @queue.add { counter+=1 } }
+          3.times { @queue.add! { counter+=1 } }
         end
 
         mock(@queue).work!.never
         assert_equal 3, @queue.instance_variable_get("@job_procs").size
         assert_equal 0, counter
+      end
+
+      it 'should have a method alias to #add for callers using the previous #add method' do
+        assert_equal @queue.method(:add!), @queue.method(:add)
       end
     end
 
