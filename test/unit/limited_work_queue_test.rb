@@ -204,7 +204,7 @@ describe ExceptionalSynchrony::LimitedWorkQueue do
       end
 
       it 'should have a method alias to #add for callers using the previous #add method' do
-        assert_equal @queue.method(:add!), @queue.method(:add)
+        assert_equal true, @queue.method(:add!) == @queue.method(:add)
       end
     end
 
