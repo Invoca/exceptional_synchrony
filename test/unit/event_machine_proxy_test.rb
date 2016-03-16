@@ -47,6 +47,20 @@ describe ExceptionalSynchrony::EventMachineProxy do
     @em.yield_to_reactor
   end
 
+  describe "#safe_defer" do
+    it "should output its block's output when it doesn't raise an error" do
+      assert_equal 12, @em.safe_defer("#safe_defer success") do
+        12
+      end
+    end
+
+    it "should raise an error when its block raises an error" do
+      assert_raises ArgumentError, @em.safe_defer("#safe_defer raising an error") do
+        raise ArgumentError, "!!!"
+      end
+    end
+  end
+
   EXCEPTION = ArgumentError.new('in block')
 
   describe "blocks should be wrapped in ensure_completely_safe" do
