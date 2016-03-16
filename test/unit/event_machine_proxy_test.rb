@@ -49,14 +49,24 @@ describe ExceptionalSynchrony::EventMachineProxy do
 
   describe "#safe_defer" do
     it "should output its block's output when it doesn't raise an error" do
-      assert_equal 12, @em.safe_defer("#safe_defer success") do
-        12
+      ExceptionHandling.logger = Logger.new(STDERR)
+
+      @em.run do
+        assert_equal 12, @em.safe_defer("#safe_defer success") { 12 }
+        @em.stop
       end
     end
 
     it "should raise an error when its block raises an error" do
-      assert_raises ArgumentError, @em.safe_defer("#safe_defer raising an error") do
-        raise ArgumentError, "!!!"
+      ExceptionHandling.logger = Logger.new(STDERR)
+
+      @em.run do
+        ex = assert_raises(ArgumentError) do
+          @em.safe_defer("#safe_defer raising an error") { raise ArgumentError, "!!!" }
+        end
+
+        assert_equal "!!!", ex.message
+        @em.stop
       end
     end
   end
