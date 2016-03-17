@@ -72,7 +72,7 @@ module ExceptionalSynchrony
       end
     end
 
-    def safe_defer(context, &block)
+    def defer(context, &block)
       deferrable = EventMachine::DefaultDeferrable.new
 
       callback = -> (result) { deferrable.succeed(result) }
