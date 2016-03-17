@@ -72,6 +72,18 @@ module ExceptionalSynchrony
       end
     end
 
+    def defer(context, &block)
+      deferrable = EventMachine::DefaultDeferrable.new
+
+      callback = -> (result) { deferrable.succeed(result) }
+
+      EventMachine.defer(nil, callback) { CallbackExceptions.return_exception(&block) }
+
+      EventMachine::Synchrony.sync(deferrable)
+
+      CallbackExceptions.map_deferred_result(deferrable)
+    end
+
     def reactor_running?
       @proxy_class.reactor_running?
     end
