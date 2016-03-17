@@ -47,12 +47,12 @@ describe ExceptionalSynchrony::EventMachineProxy do
     @em.yield_to_reactor
   end
 
-  describe "#safe_defer" do
+  describe "#defer" do
     it "should output its block's output when it doesn't raise an error" do
       ExceptionHandling.logger = Logger.new(STDERR)
 
       @em.run do
-        assert_equal 12, @em.safe_defer("#safe_defer success") { 12 }
+        assert_equal 12, @em.defer("#defer success") { 12 }
         @em.stop
       end
     end
@@ -62,7 +62,7 @@ describe ExceptionalSynchrony::EventMachineProxy do
 
       @em.run do
         ex = assert_raises(ArgumentError) do
-          @em.safe_defer("#safe_defer raising an error") { raise ArgumentError, "!!!" }
+          @em.defer("#defer raising an error") { raise ArgumentError, "!!!" }
         end
 
         assert_equal "!!!", ex.message
