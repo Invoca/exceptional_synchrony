@@ -1,3 +1,8 @@
+ENV['RACK_ENV'] = 'test'
+
+require 'bundler'
+Bundler.setup(:default, :development)
+
 require_relative '../lib/exceptional_synchrony.rb'
 
 require 'minitest/autorun' or raise "Already loaded minitest?"
