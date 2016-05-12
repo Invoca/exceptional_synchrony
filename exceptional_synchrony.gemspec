@@ -12,7 +12,7 @@ Gem::Specification.new do |gem|
   gem.files       = `git ls-files`.split($/)
   gem.version     = ExceptionalSynchrony::VERSION
 
-  gem.add_dependency 'exception_handling'
+  gem.add_dependency 'exception_handling', '~> 1'
   gem.add_dependency 'eventmachine', '~> 1.0.3'
   gem.add_dependency 'em-synchrony', '~> 1.0.3'
   gem.add_dependency 'em-http-request'
