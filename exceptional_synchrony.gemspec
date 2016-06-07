@@ -13,8 +13,8 @@ Gem::Specification.new do |gem|
   gem.version     = ExceptionalSynchrony::VERSION
 
   gem.add_dependency 'exception_handling', '~> 1'
-  gem.add_dependency 'eventmachine', '~> 1.0.3'
-  gem.add_dependency 'em-synchrony', '~> 1.0.3'
+  gem.add_dependency 'eventmachine'
+  gem.add_dependency 'em-synchrony'
   gem.add_dependency 'em-http-request'
   gem.add_dependency 'hobo_support'
 
