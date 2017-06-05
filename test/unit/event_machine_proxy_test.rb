@@ -42,9 +42,19 @@ describe ExceptionalSynchrony::EventMachineProxy do
     @yielded_value.must_equal :called
   end
 
-  it "should have a #yield_to_reactor to give control to other threads" do
-    mock(EventMachine::Synchrony).sleep(0)
-    @em.yield_to_reactor
+  describe "#yield_to_reactor" do
+    it "should give control to other threads when the reactor is running" do
+      mock(@em).reactor_running? { true }
+      mock(EventMachine::Synchrony).sleep(0)
+      @em.yield_to_reactor
+    end
+
+    it "should be a no-op if the reactor is not running" do
+      mock(@em).reactor_running? { false }
+      stub(EventMachine::Synchrony).sleep(0) { raise "Should not sleep!" }
+      @em.yield_to_reactor
+    end
+    
   end
 
   describe "#defer" do
