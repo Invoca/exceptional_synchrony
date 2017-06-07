@@ -42,7 +42,9 @@ module ExceptionalSynchrony
     end
 
     def yield_to_reactor
-      @synchrony.sleep(0)
+      if reactor_running?
+        @synchrony.sleep(0)
+      end
     end
 
     def next_tick(&block)
