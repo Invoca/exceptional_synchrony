@@ -108,6 +108,26 @@ describe ExceptionalSynchrony::LimitedWorkQueue do
       assert_equal 1+2+4+32, c
     end
 
+    it "should ensure that the queue continues to function even when an exception is raised" do
+      mock(ExceptionHandling).log_error(anything, /LimitedWorkQueue encountered an exception/).twice
+      ExceptionalSynchrony::EMP.run_and_stop do
+        c = 0
+        last_start = nil; end_0 = nil; end_1 = nil
+        @queue.add! { c += 1; @em.sleep(0.001); end_0 = c+=1; raise "Boom" }
+        @queue.add! { c += 1; @em.sleep(0.001); end_1 = c+=1; raise "Boom" }
+        @queue.add! { last_start = c+= 1; @em.sleep(0.001); c+=1 }
+
+        3.times do
+          @em.sleep(0.005)
+          break if c == 6
+        end
+
+        assert last_start && last_start > 3, "Unexpected value for last_start: #{last_start.inspect}"
+        assert [end_0, end_1].any? {|e| last_start > e }
+        assert_equal 6, c
+      end
+    end
+
     it "should run 2 blocking tasks in parallel and only start 3rd when one of the first 2 finishes" do
       stub_request(:get, "http://www.google.com/").
           to_return(:status => 200, :body => "1", :headers => {})
