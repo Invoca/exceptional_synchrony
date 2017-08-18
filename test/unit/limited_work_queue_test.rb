@@ -118,7 +118,7 @@ describe ExceptionalSynchrony::LimitedWorkQueue do
         @queue.add! { last_start = c+= 1; @em.sleep(0.001); c+=1 }
 
         3.times do
-          @em.sleep(0.005)
+          @em.sleep(0.030)
           break if c == 6
         end
 
@@ -146,7 +146,7 @@ describe ExceptionalSynchrony::LimitedWorkQueue do
         @queue.add! { started2 = c+=1; ExceptionalSynchrony::EMP.connection.new("http://news.ycombinator.com").get; c+=1 }
 
         3.times do
-          @em.sleep(0.005)
+          @em.sleep(0.030)
           break if c == 5
         end
 

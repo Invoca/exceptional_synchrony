@@ -57,7 +57,7 @@ module ExceptionalSynchrony
         @worker_count += 1
         Fiber.new do
           begin
-          job_proc.call
+            job_proc.call
           rescue => ex
             ExceptionHandling.log_error(ex, "LimitedWorkQueue encountered an exception")
           ensure
