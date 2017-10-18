@@ -89,7 +89,7 @@ describe ExceptionalSynchrony::CallbackExceptions do
         result = assert_raises(ExceptionalSynchrony::CallbackExceptions::Failure) do
           ExceptionalSynchrony::CallbackExceptions.map_deferred_result(deferrable)
         end
-        result.message.must_equal "ERROR = nil; RESULT = {:first=>\"a\", :last=>\"b\"}"
+        result.message.must_equal "RESULT = {:first=>\"a\", :last=>\"b\"}"
       end
 
       it "should truncate long failures" do
@@ -98,7 +98,7 @@ describe ExceptionalSynchrony::CallbackExceptions do
         result = assert_raises(ExceptionalSynchrony::CallbackExceptions::Failure) do
           ExceptionalSynchrony::CallbackExceptions.map_deferred_result(deferrable)
         end
-        expected_message = "ERROR = nil; RESULT = \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabbbbbbbbbbbbbbbb...TRUNC"
+        expected_message = "RESULT = \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabbbbbbbbbbbbbbbb...TRUNC"
         result.message.must_equal expected_message
       end
 
