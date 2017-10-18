@@ -21,6 +21,6 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency 'thor'
   gem.add_development_dependency 'minitest'
   gem.add_development_dependency 'webmock', '~> 1.17.1'
-
   gem.add_development_dependency 'rr', '~> 1.1.2'
+  gem.add_development_dependency 'pry'
 end

@@ -41,6 +41,7 @@ GEM
     addressable (2.3.5)
     arel (3.0.3)
     builder (3.0.4)
+    coderay (1.1.2)
     cookiejar (0.3.3)
     crack (0.4.1)
       safe_yaml (~> 0.9.0)
@@ -74,10 +75,14 @@ GEM
     mail (2.5.4)
       mime-types (~> 1.16)
       treetop (~> 1.4.8)
+    method_source (0.9.0)
     mime-types (1.25.1)
     minitest (4.7.5)
     multi_json (1.12.1)
     polyglot (0.3.5)
+    pry (0.11.1)
+      coderay (~> 1.1.0)
+      method_source (~> 0.9.0)
     rack (1.4.7)
     rack-cache (1.6.1)
       rack (>= 0.4)
@@ -126,6 +131,7 @@ PLATFORMS
 DEPENDENCIES
   exceptional_synchrony!
   minitest
+  pry
   rr (~> 1.1.2)
   thor
   webmock (~> 1.17.1)

@@ -1,4 +1,5 @@
 require_relative '../test_helper'
+require 'pry'
 
 describe ExceptionalSynchrony::CallbackExceptions do
   describe "ensure_callback" do
@@ -88,7 +89,17 @@ describe ExceptionalSynchrony::CallbackExceptions do
         result = assert_raises(ExceptionalSynchrony::CallbackExceptions::Failure) do
           ExceptionalSynchrony::CallbackExceptions.map_deferred_result(deferrable)
         end
-        result.message.must_equal "{:first=>\"a\", :last=>\"b\"}"
+        result.message.must_equal "ERROR = nil; RESULT = {:first=>\"a\", :last=>\"b\"}"
+      end
+
+      it "should truncate long failures" do
+        deferrable = EM::DefaultDeferrable.new
+        deferrable.fail('a'*75 + 'b'*75)
+        result = assert_raises(ExceptionalSynchrony::CallbackExceptions::Failure) do
+          ExceptionalSynchrony::CallbackExceptions.map_deferred_result(deferrable)
+        end
+        expected_message = "ERROR = nil; RESULT = \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabbbbbbbbbbbbbbbb...TRUNC"
+        result.message.must_equal expected_message
       end
 
       it "should map failure exceptions to raise" do
@@ -113,6 +124,47 @@ describe ExceptionalSynchrony::CallbackExceptions do
         assert_raises(Timeout::Error) do
           ExceptionalSynchrony::CallbackExceptions.map_deferred_result(deferrable)
         end
+      end
+
+      it "should map Errno::ETIMEDOUT to TimeoutError" do
+        deferrable = EM::DefaultDeferrable.new
+
+        def deferrable.error
+          Errno::ETIMEDOUT
+        end
+
+        deferrable.fail(deferrable)
+        assert_raises(Timeout::Error) do
+          ExceptionalSynchrony::CallbackExceptions.map_deferred_result(deferrable)
+        end
+      end
+
+      it "should map other SystemCallError exceptions to Failures with the error in the message" do
+        deferrable = EM::DefaultDeferrable.new
+
+        def deferrable.error
+          Errno::ECONNREFUSED
+        end
+
+        deferrable.fail(deferrable)
+        result = assert_raises(ExceptionalSynchrony::CallbackExceptions::Failure) do
+          ExceptionalSynchrony::CallbackExceptions.map_deferred_result(deferrable)
+        end
+        result.message.must_match /\AERROR = Errno::ECONNREFUSED; RESULT = #<EventMachine::DefaultDeferrable/
+      end
+
+      it "should map any other errors to Failure with the error in the message" do
+        deferrable = EM::DefaultDeferrable.new
+
+        def deferrable.error
+          ArgumentError.new("Some errror")
+        end
+
+        deferrable.fail(deferrable)
+        result = assert_raises(ExceptionalSynchrony::CallbackExceptions::Failure) do
+          ExceptionalSynchrony::CallbackExceptions.map_deferred_result(deferrable)
+        end
+        result.message.must_match /\AERROR = #<ArgumentError: Some errror>; RESULT = #<EventMachine::DefaultDeferrable/
       end
     end
 
