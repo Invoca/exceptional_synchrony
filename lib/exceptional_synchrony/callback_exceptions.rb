@@ -59,9 +59,9 @@ module ExceptionalSynchrony
       end
 
       def truncated_inspect(obj)
-        inspection = obj.inspect[0..100]
+        inspection = obj.inspect[0, 101]
         if inspection.length > 100
-          inspection[0..91] + '...TRUNC'
+          inspection[0, 92] + '...TRUNC'
         else
           inspection
         end
