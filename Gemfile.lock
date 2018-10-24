@@ -1,7 +1,7 @@
 GIT
   remote: git@github.com:Invoca/exception_handling
-  revision: 7e6f4a0f6e80c18a00855aeb69b1681ed308b50a
-  ref: 7e6f4a0f6e80c18a00855aeb69b1681ed308b50a
+  revision: 81cca1d90f94bf82785e6339e4647f0bc21d0ab8
+  ref: 81cca1d90f94bf82785e6339e4647f0bc21d0ab8
   specs:
     exception_handling (2.0.0)
       actionmailer (~> 4.0)
@@ -86,7 +86,7 @@ GEM
     http_parser.rb (0.6.0)
     i18n (0.9.5)
       concurrent-ruby (~> 1.0)
-    invoca-utils (0.0.2)
+    invoca-utils (0.0.3)
     loofah (2.2.2)
       crass (~> 1.0.2)
       nokogiri (>= 1.5.9)
@@ -159,4 +159,4 @@ DEPENDENCIES
   webmock (~> 1.17.1)
 
 BUNDLED WITH
-   1.16.1
+   1.16.2
