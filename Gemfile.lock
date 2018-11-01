@@ -1,9 +1,9 @@
 GIT
   remote: git@github.com:Invoca/exception_handling
-  revision: 7e6f4a0f6e80c18a00855aeb69b1681ed308b50a
-  ref: 7e6f4a0f6e80c18a00855aeb69b1681ed308b50a
+  revision: 05c47a5a016ae1e5c10d5c538e1bf633de7f8361
+  ref: 05c47a5a016ae1e5c10d5c538e1bf633de7f8361
   specs:
-    exception_handling (2.0.0)
+    exception_handling (2.1.0)
       actionmailer (~> 4.0)
       actionpack (~> 4.0)
       activesupport (~> 4.0)
@@ -14,11 +14,11 @@ GIT
 PATH
   remote: .
   specs:
-    exceptional_synchrony (1.0.3)
+    exceptional_synchrony (1.1.0)
       em-http-request
       em-synchrony
       eventmachine
-      exception_handling (~> 2.0.0)
+      exception_handling (~> 2.0)
       hobo_support
 
 GEM
@@ -81,22 +81,22 @@ GEM
     eventmachine (1.2.7)
     globalid (0.4.1)
       activesupport (>= 4.2.0)
-    hobo_support (2.2.0)
-      rails
+    hobo_support (2.2.6)
+      rails (~> 4.2.6)
     http_parser.rb (0.6.0)
     i18n (0.9.5)
       concurrent-ruby (~> 1.0)
-    invoca-utils (0.0.2)
-    loofah (2.2.2)
+    invoca-utils (0.0.3)
+    loofah (2.2.3)
       crass (~> 1.0.2)
       nokogiri (>= 1.5.9)
-    mail (2.7.0)
+    mail (2.7.1)
       mini_mime (>= 0.1.1)
     method_source (0.9.0)
     mini_mime (1.0.1)
     mini_portile2 (2.3.0)
     minitest (5.11.3)
-    nokogiri (1.8.4)
+    nokogiri (1.8.5)
       mini_portile2 (~> 2.3.0)
     pry (0.11.1)
       coderay (~> 1.1.0)
@@ -150,7 +150,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  exception_handling (~> 2.0.0)!
+  exception_handling!
   exceptional_synchrony!
   minitest
   pry
