@@ -14,11 +14,11 @@ GIT
 PATH
   remote: .
   specs:
-    exceptional_synchrony (1.0.3)
+    exceptional_synchrony (1.1.0)
       em-http-request
       em-synchrony
       eventmachine
-      exception_handling (~> 2.0.0)
+      exception_handling (~> 2.0)
       hobo_support
 
 GEM
