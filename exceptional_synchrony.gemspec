@@ -12,15 +12,9 @@ Gem::Specification.new do |gem|
   gem.files       = `git ls-files`.split($/)
   gem.version     = ExceptionalSynchrony::VERSION
 
-  gem.add_dependency 'exception_handling', '~> 2.0.0'
-  gem.add_dependency 'eventmachine'
+  gem.add_dependency 'hobo_support'
   gem.add_dependency 'em-synchrony'
   gem.add_dependency 'em-http-request'
-  gem.add_dependency 'hobo_support'
-
-  gem.add_development_dependency 'thor'
-  gem.add_development_dependency 'minitest'
-  gem.add_development_dependency 'webmock', '~> 1.17.1'
-  gem.add_development_dependency 'rr', '~> 1.1.2'
-  gem.add_development_dependency 'pry'
+  gem.add_dependency 'eventmachine'
+  gem.add_dependency 'exception_handling', '~> 2.0'
 end
