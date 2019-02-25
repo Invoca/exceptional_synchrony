@@ -1,15 +1,16 @@
 GIT
   remote: git@github.com:Invoca/exception_handling
-  revision: 7e6f4a0f6e80c18a00855aeb69b1681ed308b50a
-  ref: 7e6f4a0f6e80c18a00855aeb69b1681ed308b50a
+  revision: 46e957b686c545c1ec1af599e7a095a1ad11ef2f
+  ref: 46e957b686c545c1ec1af599e7a095a1ad11ef2f
   specs:
-    exception_handling (2.0.0)
+    exception_handling (2.2.0)
       actionmailer (~> 4.0)
       actionpack (~> 4.0)
       activesupport (~> 4.0)
-      eventmachine (>= 0.12.10)
+      contextual_logger
+      eventmachine (~> 1.0)
       hobo_support
-      invoca-utils (~> 0.0.2)
+      invoca-utils (~> 0.0)
 
 PATH
   remote: .
@@ -63,6 +64,8 @@ GEM
     builder (3.2.3)
     coderay (1.1.2)
     concurrent-ruby (1.0.5)
+    contextual_logger (0.2.1)
+      json
     cookiejar (0.3.3)
     crack (0.4.1)
       safe_yaml (~> 0.9.0)
@@ -86,7 +89,8 @@ GEM
     http_parser.rb (0.6.0)
     i18n (0.9.5)
       concurrent-ruby (~> 1.0)
-    invoca-utils (0.0.2)
+    invoca-utils (0.0.3)
+    json (2.2.0)
     loofah (2.2.2)
       crass (~> 1.0.2)
       nokogiri (>= 1.5.9)
@@ -150,7 +154,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  exception_handling (~> 2.0.0)!
+  exception_handling (~> 2.2.0)!
   exceptional_synchrony!
   minitest
   pry
@@ -159,4 +163,4 @@ DEPENDENCIES
   webmock (~> 1.17.1)
 
 BUNDLED WITH
-   1.16.1
+   1.16.2
