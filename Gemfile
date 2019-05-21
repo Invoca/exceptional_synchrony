@@ -5,7 +5,7 @@ source 'https://rubygems.org'
 # Specify your gem's dependencies in attr_default.gemspec
 gemspec
 
-gem 'exception_handling', '~> 2.0.0', git: 'git@github.com:Invoca/exception_handling', ref: '7e6f4a0f6e80c18a00855aeb69b1681ed308b50a'
+gem 'exception_handling', '~> 2.2', git: 'git@github.com:Invoca/exception_handling', ref: '5e7580fffe28f56b232b1106e666b0f58376d739'
 
 group :development do
   gem 'minitest'
