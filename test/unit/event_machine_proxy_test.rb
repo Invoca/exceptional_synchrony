@@ -3,10 +3,27 @@ require_relative '../test_helper'
 describe ExceptionalSynchrony::EventMachineProxy do
   include TestHelper
 
+  class RunProxyMock
+    def self.run(&block)
+      block.call
+      :run
+    end
+
+    def self.error_handler
+    end
+  end
+
+  class SynchronyProxyMock < RunProxyMock
+    def self.synchrony(&block)
+      block.call
+      :synchrony
+    end
+  end
+
   before do
     @em = ExceptionalSynchrony::EventMachineProxy.new(EventMachine, nil)
     @yielded_value = nil
-    @block = lambda { |value| @yielded_value = value }
+    @block = -> (value) { @yielded_value = value }
   end
 
   it "should proxy add_timer" do
@@ -89,45 +106,44 @@ describe ExceptionalSynchrony::EventMachineProxy do
     end
 
     it "add_timer" do
-      mock(ExceptionHandling).log_error(EXCEPTION, "add_timer")
+      mock(ExceptionHandling).log_error(EXCEPTION, "add_timer", {})
       mock(EventMachine::Synchrony).add_timer(10) { |duration, *args| args.first.call }
       @em.add_timer(10) { raise EXCEPTION }
     end
 
     it "add_periodic_timer" do
-      mock(ExceptionHandling).log_error(EXCEPTION, "add_periodic_timer")
+      mock(ExceptionHandling).log_error(EXCEPTION, "add_periodic_timer", {})
       mock(EventMachine::Synchrony).add_periodic_timer(10) { |duration, *args| args.first.call }
       @em.add_periodic_timer(10) { raise EXCEPTION }
     end
 
     it "next_tick" do
-      mock(ExceptionHandling).log_error(EXCEPTION, "next_tick")
+      mock(ExceptionHandling).log_error(EXCEPTION, "next_tick", {})
       mock(EventMachine::Synchrony).next_tick { |*args| args.first.call }
       @em.next_tick { raise EXCEPTION }
     end
   end
 
-  [false, true].each do |synchrony|
-    describe "synchrony = #{synchrony}" do
-      it "should dispatch to the proxy's synchrony method instead of run iff synchrony" do
-        proxy_mock = Struct.new(:proxy, :class_connection) do
-          if synchrony
-            def self.synchrony(&block)
-              block.(:synchrony)
-            end
-          end
-
-          def self.run(&block)
-            block.(:run)
-          end
+  describe "run" do
+    { synchrony: SynchronyProxyMock, run: RunProxyMock }.each do |method, proxy_mock|
+      describe "using #{method}" do
+        before do
+          @proxy = ExceptionalSynchrony::EventMachineProxy.new(proxy_mock, nil)
         end
 
-        mock(proxy_mock).error_handler
+        it "should dispatch to the proxy's synchrony method instead of run iff synchrony" do
+          dispatched = false
+          block = -> { dispatched = true }
+          assert_equal method, @proxy.run(&block)
+          assert_equal true, dispatched
+        end
 
-        proxy = ExceptionalSynchrony::EventMachineProxy.new(proxy_mock, nil)
-
-        proxy.run(&@block)
-        @yielded_value.must_equal synchrony ? :synchrony : :run
+        it "should rescue any exceptions and raise FatalRunError" do
+          block = -> { raise "boom" }
+          assert_raises(ExceptionalSynchrony::FatalRunError, "Fatal EventMachine run error") do
+            @proxy.run(&block)
+          end
+        end
       end
     end
   end

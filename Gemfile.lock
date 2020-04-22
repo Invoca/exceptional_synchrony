@@ -15,7 +15,7 @@ GIT
 PATH
   remote: .
   specs:
-    exceptional_synchrony (1.1.0)
+    exceptional_synchrony (1.2.0)
       em-http-request
       em-synchrony
       eventmachine
@@ -163,4 +163,4 @@ DEPENDENCIES
   webmock (~> 1.17.1)
 
 BUNDLED WITH
-   1.16.1
+   1.16.4

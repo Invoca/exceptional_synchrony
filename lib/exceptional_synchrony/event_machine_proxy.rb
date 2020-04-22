@@ -5,6 +5,8 @@ require 'em-http'
 require 'em-synchrony/em-http'
 
 module ExceptionalSynchrony
+  class FatalRunError < Exception; end
+
   class EventMachineProxy
 
     attr_reader :connection
@@ -65,11 +67,13 @@ module ExceptionalSynchrony
     end
 
     def run(&block)
-      ensure_completely_safe("run") do
+      run_block = -> { rescue_exceptions_and_ensure_exit("run") { block.call } }
+
+      rescue_exceptions_and_ensure_exit("run") do
         if @proxy_class.respond_to?(:synchrony)
-          @proxy_class.synchrony(&block)
+          @proxy_class.synchrony(&run_block)
         else
-          @proxy_class.run(&block)
+          @proxy_class.run(&run_block)
         end
       end
     end
@@ -107,6 +111,14 @@ module ExceptionalSynchrony
       else
         yield
       end
+    end
+
+    def rescue_exceptions_and_ensure_exit(context)
+      yield
+    rescue StandardError
+      # Raise a non-StandardError so that not caught by EM.error_handler.
+      # Expecting rescued exception to be stored in this new exception's cause.
+      raise FatalRunError, "Fatal EventMachine #{context} error"
     end
   end
 
