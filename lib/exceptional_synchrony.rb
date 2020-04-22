@@ -1,7 +1,11 @@
 require 'hobo_support'
 require 'em-synchrony'
 require 'em-synchrony/em-http'
-require 'exception_handling'
+begin
+  require 'exception_handling'
+rescue Exception => ex
+  raise "rescued exception #{ex.inspect} in RUBY_VERSION #{RUBY_VERSION}"
+end
 
 
 module ExceptionalSynchrony
