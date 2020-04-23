@@ -5,6 +5,8 @@ require 'em-http'
 require 'em-synchrony/em-http'
 
 module ExceptionalSynchrony
+  # It is important for this exception to be inherited from Exception so that
+  # when thrown it does not get caught by the EventMachine.error_handler.
   class FatalRunError < Exception; end
 
   class EventMachineProxy
@@ -67,7 +69,7 @@ module ExceptionalSynchrony
     end
 
     def run(&block)
-      run_block = -> { rescue_exceptions_and_ensure_exit("run") { block.call } }
+      run_block = -> { rescue_exceptions_and_ensure_exit("run", &block) }
 
       rescue_exceptions_and_ensure_exit("run") do
         if @proxy_class.respond_to?(:synchrony)
@@ -115,10 +117,10 @@ module ExceptionalSynchrony
 
     def rescue_exceptions_and_ensure_exit(context)
       yield
-    rescue StandardError
+    rescue StandardError => ex
       # Raise a non-StandardError so that not caught by EM.error_handler.
       # Expecting rescued exception to be stored in this new exception's cause.
-      raise FatalRunError, "Fatal EventMachine #{context} error"
+      raise FatalRunError, "Fatal EventMachine #{context} error\n#{ex.class.name}: #{ex.message}"
     end
   end
 

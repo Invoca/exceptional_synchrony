@@ -4,19 +4,23 @@ describe ExceptionalSynchrony::EventMachineProxy do
   include TestHelper
 
   class RunProxyMock
-    def self.run(&block)
-      block.call
-      :run
-    end
+    class << self
+      def run(&block)
+        block.call
+        :run
+      end
 
-    def self.error_handler
+      def error_handler
+      end
     end
   end
 
   class SynchronyProxyMock < RunProxyMock
-    def self.synchrony(&block)
-      block.call
-      :synchrony
+    class << self
+      def synchrony(&block)
+        block.call
+        :synchrony
+      end
     end
   end
 
@@ -133,8 +137,7 @@ describe ExceptionalSynchrony::EventMachineProxy do
 
         it "should dispatch to the proxy's synchrony method instead of run iff synchrony" do
           dispatched = false
-          block = -> { dispatched = true }
-          assert_equal method, @proxy.run(&block)
+          assert_equal method, (@proxy.run { dispatched = true })
           assert_equal true, dispatched
         end
 
