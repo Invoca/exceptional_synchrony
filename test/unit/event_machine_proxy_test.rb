@@ -128,23 +128,48 @@ describe ExceptionalSynchrony::EventMachineProxy do
     end
   end
 
-  describe "run" do
-    { synchrony: SynchronyProxyMock, run: RunProxyMock }.each do |method, proxy_mock|
-      describe "using #{method}" do
+  { synchrony: SynchronyProxyMock, run: RunProxyMock }.each do |method, proxy_mock|
+    describe "run" do
+      before do
+        @proxy = ExceptionalSynchrony::EventMachineProxy.new(proxy_mock, nil)
+      end
+
+      it "should raise ArgumentError if on_error has invalid value" do
+        assert_raises(ArgumentError, "Invalid on_error: :ignore, must be :log or :raise") do
+          @proxy.run(on_error: :ignore)
+        end
+      end
+
+      describe "without error" do
+        [:log, :raise].each do |on_error|
+          describe "when using #{method} and on_error = #{on_error}" do
+            it "should dispatch to the proxy's synchrony method instead of run iff synchrony" do
+              dispatched = false
+              assert_equal method, (@proxy.run(on_error: on_error) { dispatched = true })
+              assert_equal true, dispatched
+            end
+          end
+        end
+      end
+
+      describe "with error" do
         before do
-          @proxy = ExceptionalSynchrony::EventMachineProxy.new(proxy_mock, nil)
+          set_test_const('ExceptionalSynchrony::EventMachineProxy::WRAP_WITH_ENSURE_COMPLETELY_SAFE', true)
         end
 
-        it "should dispatch to the proxy's synchrony method instead of run iff synchrony" do
-          dispatched = false
-          assert_equal method, (@proxy.run { dispatched = true })
-          assert_equal true, dispatched
+        describe "when using #{method} and on_error = :log" do
+          it "should rescue any exceptions and log them" do
+            mock(ExceptionHandling).log_error(EXCEPTION, "run_with_error_logging", {})
+
+            @proxy.run(on_error: :log) { raise EXCEPTION }
+          end
         end
 
-        it "should rescue any exceptions and raise FatalRunError" do
-          block = -> { raise "boom" }
-          assert_raises(ExceptionalSynchrony::FatalRunError, "Fatal EventMachine run error") do
-            @proxy.run(&block)
+        describe "when using #{method} and on_error = :raise" do
+          it "should rescue any exceptions and raise FatalRunError" do
+            assert_raises(ExceptionalSynchrony::FatalRunError, "Fatal EventMachine run error") do
+              @proxy.run(on_error: :raise) { raise EXCEPTION }
+            end
           end
         end
       end
