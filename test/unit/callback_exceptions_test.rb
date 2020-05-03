@@ -109,8 +109,8 @@ describe ExceptionalSynchrony::CallbackExceptions do
         result = assert_raises(ExceptionalSynchrony::CallbackExceptions::Failure) do
           ExceptionalSynchrony::CallbackExceptions.map_deferred_result(deferrable)
         end.message
-        expect(result).must_match /ArgumentError/
-        expect(result).must_match /Wrong argument!/
+        expect(result).must_match(/ArgumentError/)
+        expect(result).must_match(/Wrong argument!/)
       end
 
       it "should map timeout failure to raise TimeoutError" do
@@ -150,7 +150,7 @@ describe ExceptionalSynchrony::CallbackExceptions do
         result = assert_raises(ExceptionalSynchrony::CallbackExceptions::Failure) do
           ExceptionalSynchrony::CallbackExceptions.map_deferred_result(deferrable)
         end
-        expect(result.message).must_match /\AERROR = Errno::ECONNREFUSED; RESULT = #<EventMachine::DefaultDeferrable/
+        expect(result.message).must_match(/\AERROR = Errno::ECONNREFUSED; RESULT = #<EventMachine::DefaultDeferrable/)
       end
 
       it "should map any other errors to Failure with the error in the message" do
@@ -164,7 +164,7 @@ describe ExceptionalSynchrony::CallbackExceptions do
         result = assert_raises(ExceptionalSynchrony::CallbackExceptions::Failure) do
           ExceptionalSynchrony::CallbackExceptions.map_deferred_result(deferrable)
         end
-        expect(result.message).must_match /\AERROR = #<ArgumentError: Some errror>; RESULT = #<EventMachine::DefaultDeferrable/
+        expect(result.message).must_match(/\AERROR = #<ArgumentError: Some errror>; RESULT = #<EventMachine::DefaultDeferrable/)
       end
     end
 
@@ -174,7 +174,7 @@ describe ExceptionalSynchrony::CallbackExceptions do
         result = assert_raises(ArgumentError) do
           ExceptionalSynchrony::CallbackExceptions.map_deferred_result(deferrable)
         end
-        expect(result.message).must_match /no deferred status set yet/i
+        expect(result.message).must_match(/no deferred status set yet/i)
       end
     end
   end

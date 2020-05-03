@@ -6,11 +6,11 @@ describe ExceptionalSynchrony::LimitedWorkQueue do
   it "should raise an exception if created with a limit < 1" do
     expect(assert_raises(ArgumentError) do
       ExceptionalSynchrony::LimitedWorkQueue.new(@em, 0)
-    end.message).must_match /must be positive/
+    end.message).must_match(/must be positive/)
 
     expect(assert_raises(ArgumentError) do
       ExceptionalSynchrony::LimitedWorkQueue.new(@em, -2)
-    end.message).must_match /must be positive/
+    end.message).must_match(/must be positive/)
   end
 
   describe "when created" do

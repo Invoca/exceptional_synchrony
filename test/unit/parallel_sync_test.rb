@@ -58,7 +58,7 @@ describe ExceptionalSynchrony::ParallelSync do
 
     expect(assert_raises(NotImplementedError) do
       ExceptionalSynchrony::EMP.run_and_stop do
-        responses = ExceptionalSynchrony::ParallelSync.parallel(@em) do |parallel|
+        ExceptionalSynchrony::ParallelSync.parallel(@em) do |parallel|
           parallel.add { ExceptionalSynchrony::EMP.connection.new("http://www.google.com").get; raise NotImplementedError, "Not implemented!" }
           parallel.add { ExceptionalSynchrony::EMP.connection.new("http://www.cnn.com").get }
           parallel.add { ExceptionalSynchrony::EMP.connection.new("http://news.ycombinator.com").get }
@@ -79,7 +79,7 @@ describe ExceptionalSynchrony::ParallelSync do
 
     expect(assert_raises(NotImplementedError) do
       ExceptionalSynchrony::EMP.run_and_stop do
-        responses = ExceptionalSynchrony::ParallelSync.parallel(@em) do |parallel|
+        ExceptionalSynchrony::ParallelSync.parallel(@em) do |parallel|
           parallel.add { ExceptionalSynchrony::EMP.connection.new("http://www.google.com").get; raise NotImplementedError, "Not implemented!" }
           parallel.add { ExceptionalSynchrony::EMP.connection.new("http://www.cnn.com").get; raise LoadError, "A load error occurred" }
           parallel.add { ExceptionalSynchrony::EMP.connection.new("http://news.ycombinator.com").get; raise IndexError, "An index error occurred" }
