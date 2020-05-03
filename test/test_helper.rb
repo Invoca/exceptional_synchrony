@@ -11,6 +11,8 @@ require 'webmock'
 require 'webmock/minitest'
 require 'rr'
 
+ActiveSupport::TestCase.test_order = :sorted
+
 module TestHelper
   @@constant_overrides = []
 

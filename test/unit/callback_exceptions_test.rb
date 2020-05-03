@@ -61,14 +61,14 @@ describe ExceptionalSynchrony::CallbackExceptions do
         deferrable = EM::DefaultDeferrable.new
         deferrable.succeed(12)
         result = ExceptionalSynchrony::CallbackExceptions.map_deferred_result(deferrable)
-        result.must_equal 12
+        expect(result).must_equal(12)
       end
 
       it "should map success values to an array" do
         deferrable = EM::DefaultDeferrable.new
         deferrable.succeed(12, 13, 14)
         result = ExceptionalSynchrony::CallbackExceptions.map_deferred_result(deferrable)
-        result.must_equal [12, 13, 14]
+        expect(result).must_equal([12, 13, 14])
       end
 
       it "should map success exception values to raise" do
@@ -78,7 +78,7 @@ describe ExceptionalSynchrony::CallbackExceptions do
         result = assert_raises(ArgumentError) do
           ExceptionalSynchrony::CallbackExceptions.map_deferred_result(deferrable)
         end
-        result.must_equal exception
+        expect(result).must_equal(exception)
       end
     end
 
@@ -88,8 +88,8 @@ describe ExceptionalSynchrony::CallbackExceptions do
         deferrable.fail(first: "a", last: "b")
         result = assert_raises(ExceptionalSynchrony::CallbackExceptions::Failure) do
           ExceptionalSynchrony::CallbackExceptions.map_deferred_result(deferrable)
-        end
-        result.message.must_equal "RESULT = {:first=>\"a\", :last=>\"b\"}"
+        end.message
+        expect(result).must_equal("RESULT = {:first=>\"a\", :last=>\"b\"}")
       end
 
       it "should truncate long failures" do
@@ -97,9 +97,9 @@ describe ExceptionalSynchrony::CallbackExceptions do
         deferrable.fail('a'*75 + 'b'*75)
         result = assert_raises(ExceptionalSynchrony::CallbackExceptions::Failure) do
           ExceptionalSynchrony::CallbackExceptions.map_deferred_result(deferrable)
-        end
+        end.message
         expected_message = "RESULT = \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabbbbbbbbbbbbbbbb...TRUNC"
-        result.message.must_equal expected_message
+        expect(result).must_equal(expected_message)
       end
 
       it "should map failure exceptions to raise" do
@@ -108,9 +108,9 @@ describe ExceptionalSynchrony::CallbackExceptions do
         deferrable.fail(exception)
         result = assert_raises(ExceptionalSynchrony::CallbackExceptions::Failure) do
           ExceptionalSynchrony::CallbackExceptions.map_deferred_result(deferrable)
-        end
-        result.message.must_match /ArgumentError/
-        result.message.must_match /Wrong argument!/
+        end.message
+        expect(result).must_match /ArgumentError/
+        expect(result).must_match /Wrong argument!/
       end
 
       it "should map timeout failure to raise TimeoutError" do
@@ -150,7 +150,7 @@ describe ExceptionalSynchrony::CallbackExceptions do
         result = assert_raises(ExceptionalSynchrony::CallbackExceptions::Failure) do
           ExceptionalSynchrony::CallbackExceptions.map_deferred_result(deferrable)
         end
-        result.message.must_match /\AERROR = Errno::ECONNREFUSED; RESULT = #<EventMachine::DefaultDeferrable/
+        expect(result.message).must_match /\AERROR = Errno::ECONNREFUSED; RESULT = #<EventMachine::DefaultDeferrable/
       end
 
       it "should map any other errors to Failure with the error in the message" do
@@ -164,7 +164,7 @@ describe ExceptionalSynchrony::CallbackExceptions do
         result = assert_raises(ExceptionalSynchrony::CallbackExceptions::Failure) do
           ExceptionalSynchrony::CallbackExceptions.map_deferred_result(deferrable)
         end
-        result.message.must_match /\AERROR = #<ArgumentError: Some errror>; RESULT = #<EventMachine::DefaultDeferrable/
+        expect(result.message).must_match /\AERROR = #<ArgumentError: Some errror>; RESULT = #<EventMachine::DefaultDeferrable/
       end
     end
 
@@ -174,29 +174,29 @@ describe ExceptionalSynchrony::CallbackExceptions do
         result = assert_raises(ArgumentError) do
           ExceptionalSynchrony::CallbackExceptions.map_deferred_result(deferrable)
         end
-        result.message.must_match /no deferred status set yet/i
+        expect(result.message).must_match /no deferred status set yet/i
       end
     end
   end
 
   describe "return_exception" do
     it "should return the value if no exception" do
-      ExceptionalSynchrony::CallbackExceptions.return_exception do
+      expect(ExceptionalSynchrony::CallbackExceptions.return_exception do
         14
-      end.must_equal 14
+      end).must_equal(14)
     end
 
     it "should yield its args" do
-      ExceptionalSynchrony::CallbackExceptions.return_exception(0, 1) do |a, b|
+      expect(ExceptionalSynchrony::CallbackExceptions.return_exception(0, 1) do |a, b|
         assert_equal [0, 1], [a, b]
         14
-      end.must_equal 14
+      end).must_equal(14)
     end
 
     it "should rescue any exception that was raised and return it" do
-      ExceptionalSynchrony::CallbackExceptions.return_exception do
+      expect(ExceptionalSynchrony::CallbackExceptions.return_exception do
         raise ArgumentError, "An argument error occurred"
-      end.inspect.must_equal ArgumentError.new("An argument error occurred").inspect
+      end.inspect).must_equal(ArgumentError.new("An argument error occurred").inspect)
     end
   end
 end
