@@ -1,4 +1,3 @@
-require 'hobo_support'
 require 'em-synchrony'
 require 'em-synchrony/em-http'
 require 'exception_handling'

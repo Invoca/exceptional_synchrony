@@ -56,15 +56,15 @@ describe ExceptionalSynchrony::ParallelSync do
     stub_request(:get, "http://news.ycombinator.com/").
         to_return(:status => 200, :body => "3", :headers => {})
 
-    assert_raises(NotImplementedError) do
+    expect(assert_raises(NotImplementedError) do
       ExceptionalSynchrony::EMP.run_and_stop do
-        responses = ExceptionalSynchrony::ParallelSync.parallel(@em) do |parallel|
+        ExceptionalSynchrony::ParallelSync.parallel(@em) do |parallel|
           parallel.add { ExceptionalSynchrony::EMP.connection.new("http://www.google.com").get; raise NotImplementedError, "Not implemented!" }
           parallel.add { ExceptionalSynchrony::EMP.connection.new("http://www.cnn.com").get }
           parallel.add { ExceptionalSynchrony::EMP.connection.new("http://news.ycombinator.com").get }
         end
       end
-    end.to_s.must_match(/Not implemented!/)
+    end.to_s).must_match(/Not implemented!/)
   end
 
   it "should pass several exceptions through and raise them on the other side" do
@@ -77,15 +77,15 @@ describe ExceptionalSynchrony::ParallelSync do
     stub_request(:get, "http://news.ycombinator.com/").
         to_return(:status => 200, :body => "3", :headers => {})
 
-    assert_raises(NotImplementedError) do
+    expect(assert_raises(NotImplementedError) do
       ExceptionalSynchrony::EMP.run_and_stop do
-        responses = ExceptionalSynchrony::ParallelSync.parallel(@em) do |parallel|
+        ExceptionalSynchrony::ParallelSync.parallel(@em) do |parallel|
           parallel.add { ExceptionalSynchrony::EMP.connection.new("http://www.google.com").get; raise NotImplementedError, "Not implemented!" }
           parallel.add { ExceptionalSynchrony::EMP.connection.new("http://www.cnn.com").get; raise LoadError, "A load error occurred" }
           parallel.add { ExceptionalSynchrony::EMP.connection.new("http://news.ycombinator.com").get; raise IndexError, "An index error occurred" }
         end
       end
-    end.message.must_match(/Not implemented!.*LoadError: A load error occurred.*IndexError: An index error occurred/m)
+    end.message).must_match(/Not implemented!.*LoadError: A load error occurred.*IndexError: An index error occurred/m)
   end
 
   class TestProc

@@ -1,20 +1,24 @@
 require File.expand_path('../lib/exceptional_synchrony/version', __FILE__)
 
-Gem::Specification.new do |gem|
-  gem.name        = 'exceptional_synchrony'
-  gem.date        = '2014-01-16'
-  gem.summary     = 'Extensions to EventMachine/Synchrony to work well with exceptions'
-  gem.description = %q{}
-  gem.authors     = ['Colin Kelley']
-  gem.email       = 'colin@invoca.com'
-  gem.homepage    = 'https://github.com/Invoca/exceptional_synchrony'
-  gem.license     = 'MIT'
-  gem.files       = `git ls-files`.split($/)
-  gem.version     = ExceptionalSynchrony::VERSION
+Gem::Specification.new do |spec|
+  spec.name        = 'exceptional_synchrony'
+  spec.date        = '2014-01-16'
+  spec.summary     = 'Extensions to EventMachine/Synchrony to work well with exceptions'
+  spec.description = %q{}
+  spec.authors     = ['Invoca']
+  spec.email       = 'development@invoca.com'
+  spec.homepage    = 'https://github.com/Invoca/exceptional_synchrony'
+  spec.license     = 'MIT'
+  spec.files       = `git ls-files`.split($/)
+  spec.version     = ExceptionalSynchrony::VERSION
+  spec.metadata    = {
+      "source_code_uri"   => "https://github.com/Invoca/exceptional_synchrony",
+      "allowed_push_host" => "https://rubygems.org"
+  }
 
-  gem.add_dependency 'hobo_support'
-  gem.add_dependency 'em-synchrony'
-  gem.add_dependency 'em-http-request'
-  gem.add_dependency 'eventmachine'
-  gem.add_dependency 'exception_handling', '~> 2.0'
+  spec.add_dependency 'em-synchrony'
+  spec.add_dependency 'em-http-request'
+  spec.add_dependency 'eventmachine'
+  spec.add_dependency 'exception_handling', '~> 2.2'
+  spec.add_dependency 'invoca-utils', '~> 0.3'
 end

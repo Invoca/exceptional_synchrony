@@ -60,7 +60,7 @@ describe ExceptionalSynchrony::EventMachineProxy do
     ServerClass = Class.new
     mock(EventMachine).connect(ServerClass, 8080, :handler, :extra_arg).yields(:called)
     @em.connect(ServerClass, 8080, :handler, :extra_arg, &@block)
-    @yielded_value.must_equal :called
+    expect(@yielded_value).must_equal(:called)
   end
 
   describe "#yield_to_reactor" do
@@ -75,7 +75,6 @@ describe ExceptionalSynchrony::EventMachineProxy do
       stub(EventMachine::Synchrony).sleep(0) { raise "Should not sleep!" }
       @em.yield_to_reactor
     end
-    
   end
 
   describe "#defer" do
@@ -165,6 +164,8 @@ describe ExceptionalSynchrony::EventMachineProxy do
           end
         end
 
+        proxy.run(&@block)
+        expect(@yielded_value).must_equal(synchrony ? :synchrony : :run)
         describe "when using #{method} and on_error = :raise" do
           it "should rescue any exceptions and raise FatalRunError" do
             assert_raises(ExceptionalSynchrony::FatalRunError, "Fatal EventMachine run error") do
