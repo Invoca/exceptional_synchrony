@@ -164,8 +164,6 @@ describe ExceptionalSynchrony::EventMachineProxy do
           end
         end
 
-        proxy.run(&@block)
-        expect(@yielded_value).must_equal(synchrony ? :synchrony : :run)
         describe "when using #{method} and on_error = :raise" do
           it "should rescue any exceptions and raise FatalRunError" do
             assert_raises(ExceptionalSynchrony::FatalRunError, "Fatal EventMachine run error") do
