@@ -1,5 +1,6 @@
 require 'fiber'
 require 'set'
+require 'invoca/utils/hash'
 
 module ExceptionalSynchrony
   class ParallelSync

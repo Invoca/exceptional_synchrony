@@ -39,7 +39,7 @@ describe ExceptionalSynchrony::EventMachineProxy do
     ServerClass = Class.new
     mock(EventMachine).connect(ServerClass, 8080, :handler, :extra_arg).yields(:called)
     @em.connect(ServerClass, 8080, :handler, :extra_arg, &@block)
-    @yielded_value.must_equal :called
+    expect(@yielded_value).must_equal(:called)
   end
 
   describe "#yield_to_reactor" do
@@ -54,7 +54,6 @@ describe ExceptionalSynchrony::EventMachineProxy do
       stub(EventMachine::Synchrony).sleep(0) { raise "Should not sleep!" }
       @em.yield_to_reactor
     end
-    
   end
 
   describe "#defer" do
@@ -89,19 +88,19 @@ describe ExceptionalSynchrony::EventMachineProxy do
     end
 
     it "add_timer" do
-      mock(ExceptionHandling).log_error(EXCEPTION, "add_timer")
+      mock(ExceptionHandling).log_error(EXCEPTION, "add_timer", {})
       mock(EventMachine::Synchrony).add_timer(10) { |duration, *args| args.first.call }
       @em.add_timer(10) { raise EXCEPTION }
     end
 
     it "add_periodic_timer" do
-      mock(ExceptionHandling).log_error(EXCEPTION, "add_periodic_timer")
+      mock(ExceptionHandling).log_error(EXCEPTION, "add_periodic_timer", {})
       mock(EventMachine::Synchrony).add_periodic_timer(10) { |duration, *args| args.first.call }
       @em.add_periodic_timer(10) { raise EXCEPTION }
     end
 
     it "next_tick" do
-      mock(ExceptionHandling).log_error(EXCEPTION, "next_tick")
+      mock(ExceptionHandling).log_error(EXCEPTION, "next_tick", {})
       mock(EventMachine::Synchrony).next_tick { |*args| args.first.call }
       @em.next_tick { raise EXCEPTION }
     end
@@ -127,7 +126,7 @@ describe ExceptionalSynchrony::EventMachineProxy do
         proxy = ExceptionalSynchrony::EventMachineProxy.new(proxy_mock, nil)
 
         proxy.run(&@block)
-        @yielded_value.must_equal synchrony ? :synchrony : :run
+        expect(@yielded_value).must_equal(synchrony ? :synchrony : :run)
       end
     end
   end
