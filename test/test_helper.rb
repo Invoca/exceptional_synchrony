@@ -8,6 +8,10 @@ require_relative '../lib/exceptional_synchrony.rb'
 require 'minitest/autorun' or raise "Already loaded minitest?"
 require 'minitest/pride'
 require 'minitest/reporters'
+Minitest::Reporters.use! [
+  Minitest::Reporters::DefaultReporter.new,
+  Minitest::Reporters::JUnitReporter.new
+]
 require 'webmock'
 require 'webmock/minitest'
 require 'rr'
