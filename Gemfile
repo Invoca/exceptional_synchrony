@@ -7,6 +7,7 @@ gemspec
 
 group :development do
   gem 'minitest'
+  gem 'minitest-reporters'
   gem 'pry'
   gem 'rake'
   gem 'rr',      '~> 1.2'

@@ -34,6 +34,7 @@ intermediate
 publish
 .bundle
 pkg/
+test/reports
 
 # Vim
 *.s[a-w][a-z]
