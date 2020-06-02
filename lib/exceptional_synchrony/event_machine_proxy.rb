@@ -5,6 +5,10 @@ require 'em-http'
 require 'em-synchrony/em-http'
 
 module ExceptionalSynchrony
+  # It is important for this exception to be inherited from Exception so that
+  # when thrown it does not get caught by the EventMachine.error_handler.
+  class FatalRunError < Exception; end
+
   class EventMachineProxy
 
     attr_reader :connection
@@ -64,13 +68,14 @@ module ExceptionalSynchrony
       @proxy_class.connect(server, port, handler, *args, &block)
     end
 
-    def run(&block)
-      ensure_completely_safe("run") do
-        if @proxy_class.respond_to?(:synchrony)
-          @proxy_class.synchrony(&block)
-        else
-          @proxy_class.run(&block)
-        end
+    # The on_error option has these possible values:
+    #   :log   - log any rescued StandardError exceptions and continue
+    #   :raise - raise FatalRunError for any rescued StandardError exceptions
+    def run(on_error: :log, &block)
+      case on_error
+      when :log   then run_with_error_logging(&block)
+      when :raise then run_with_error_raising(&block)
+      else raise ArgumentError, "Invalid on_error: #{on_error.inspect}, must be :log or :raise"
       end
     end
 
@@ -106,6 +111,38 @@ module ExceptionalSynchrony
         end
       else
         yield
+      end
+    end
+
+    def rescue_exceptions_and_ensure_exit(context)
+      yield
+    rescue StandardError => ex
+      # Raise a non-StandardError so that not caught by EM.error_handler.
+      # Expecting rescued exception to be stored in this new exception's cause.
+      raise FatalRunError, "Fatal EventMachine #{context} error\n#{ex.class.name}: #{ex.message}"
+    end
+
+    private
+
+    def run_with_error_logging(&block)
+      ensure_completely_safe("run_with_error_logging") do
+        if @proxy_class.respond_to?(:synchrony)
+          @proxy_class.synchrony(&block)
+        else
+          @proxy_class.run(&block)
+        end
+      end
+    end
+
+    def run_with_error_raising(&block)
+      run_block = -> { rescue_exceptions_and_ensure_exit("run_with_error_raising", &block) }
+
+      rescue_exceptions_and_ensure_exit("run_with_error_raising") do
+        if @proxy_class.respond_to?(:synchrony)
+          @proxy_class.synchrony(&run_block)
+        else
+          @proxy_class.run(&run_block)
+        end
       end
     end
   end

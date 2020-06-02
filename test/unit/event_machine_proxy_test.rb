@@ -3,10 +3,31 @@ require_relative '../test_helper'
 describe ExceptionalSynchrony::EventMachineProxy do
   include TestHelper
 
+  class RunProxyMock
+    class << self
+      def run(&block)
+        block.call
+        :run
+      end
+
+      def error_handler
+      end
+    end
+  end
+
+  class SynchronyProxyMock < RunProxyMock
+    class << self
+      def synchrony(&block)
+        block.call
+        :synchrony
+      end
+    end
+  end
+
   before do
     @em = ExceptionalSynchrony::EventMachineProxy.new(EventMachine, nil)
     @yielded_value = nil
-    @block = lambda { |value| @yielded_value = value }
+    @block = -> (value) { @yielded_value = value }
   end
 
   it "should proxy add_timer" do
@@ -106,27 +127,50 @@ describe ExceptionalSynchrony::EventMachineProxy do
     end
   end
 
-  [false, true].each do |synchrony|
-    describe "synchrony = #{synchrony}" do
-      it "should dispatch to the proxy's synchrony method instead of run iff synchrony" do
-        proxy_mock = Struct.new(:proxy, :class_connection) do
-          if synchrony
-            def self.synchrony(&block)
-              block.(:synchrony)
+  { synchrony: SynchronyProxyMock, run: RunProxyMock }.each do |method, proxy_mock|
+    describe "run" do
+      before do
+        @proxy = ExceptionalSynchrony::EventMachineProxy.new(proxy_mock, nil)
+      end
+
+      it "should raise ArgumentError if on_error has invalid value" do
+        assert_raises(ArgumentError, "Invalid on_error: :ignore, must be :log or :raise") do
+          @proxy.run(on_error: :ignore)
+        end
+      end
+
+      describe "without error" do
+        [:log, :raise].each do |on_error|
+          describe "when using #{method} and on_error = #{on_error}" do
+            it "should dispatch to the proxy's synchrony method instead of run iff synchrony" do
+              dispatched = false
+              assert_equal method, (@proxy.run(on_error: on_error) { dispatched = true })
+              assert_equal true, dispatched
             end
           end
+        end
+      end
 
-          def self.run(&block)
-            block.(:run)
+      describe "with error" do
+        before do
+          set_test_const('ExceptionalSynchrony::EventMachineProxy::WRAP_WITH_ENSURE_COMPLETELY_SAFE', true)
+        end
+
+        describe "when using #{method} and on_error = :log" do
+          it "should rescue any exceptions and log them" do
+            mock(ExceptionHandling).log_error(EXCEPTION, "run_with_error_logging", {})
+
+            @proxy.run(on_error: :log) { raise EXCEPTION }
           end
         end
 
-        mock(proxy_mock).error_handler
-
-        proxy = ExceptionalSynchrony::EventMachineProxy.new(proxy_mock, nil)
-
-        proxy.run(&@block)
-        expect(@yielded_value).must_equal(synchrony ? :synchrony : :run)
+        describe "when using #{method} and on_error = :raise" do
+          it "should rescue any exceptions and raise FatalRunError" do
+            assert_raises(ExceptionalSynchrony::FatalRunError, "Fatal EventMachine run error") do
+              @proxy.run(on_error: :raise) { raise EXCEPTION }
+            end
+          end
+        end
       end
     end
   end
