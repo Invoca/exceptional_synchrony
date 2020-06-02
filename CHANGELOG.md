@@ -10,7 +10,7 @@ All notable changes to this project will be documented in this file.
 
 [1.1.1]: https://github.com/Invoca/exceptional_synchrony/compare/v1.1.0...v1.1.1
 
-## [1.2.0] - Unreleased
+## [1.2.0] - 2020-06-02
 ### Changed
 - If `EMP.run` rescues an exception, previous versions would simply log the exception and continue.
   Instead this version has an `on_error` option with possible values `:log` and `:raise`.
