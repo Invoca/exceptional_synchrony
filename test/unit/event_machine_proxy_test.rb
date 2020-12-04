@@ -179,4 +179,90 @@ describe ExceptionalSynchrony::EventMachineProxy do
     mock(EventMachine).reactor_running?
     @em.reactor_running?
   end
+
+  describe "hooks" do
+    describe "when enabled" do
+      it "calls any registered hooks" do
+        @em.enable_hooks!
+        ExceptionHandling.logger = Logger.new(STDERR)
+        events = []
+        hooks = {
+          on_schedule: ->(ctx) { events << [:on_schedule, ctx] },
+          on_start: ->(ctx) { events << [:on_start, ctx] },
+          on_exception: ->(ctx, ex) { events << [:on_exception, ctx, ex] },
+          on_end: ->(ctx) { events << [:on_end, ctx] }
+        }
+        ex = ArgumentError.new("nope")
+        mock(ExceptionHandling).log_error(ex, "next_tick", {})
+
+        set_test_const("ExceptionalSynchrony::EventMachineProxy::WRAP_WITH_ENSURE_COMPLETELY_SAFE", true)
+        @em.run do
+          @em.next_tick(hooks: hooks) do
+            raise ex
+          end
+          @em.stop
+        end
+
+        ctx = { method: :next_tick, args: [] }
+        expected = [
+          [:on_schedule, ctx],
+          [:on_start, ctx],
+          [:on_exception, ctx, ex],
+          [:on_end, ctx]
+        ]
+        assert_equal expected, events
+      end
+
+      it "should allow hooks to be ignored" do
+        @em.enable_hooks!
+        ExceptionHandling.logger = Logger.new(STDERR)
+        events = []
+        hooks = {
+          on_start: ->(ctx) { events << [:on_start, ctx] },
+        }
+        ex = ArgumentError.new("nope")
+        mock(ExceptionHandling).log_error(ex, "next_tick", {})
+
+        set_test_const("ExceptionalSynchrony::EventMachineProxy::WRAP_WITH_ENSURE_COMPLETELY_SAFE", true)
+        @em.run do
+          @em.next_tick(hooks: hooks) do
+            raise ex
+          end
+          @em.stop
+        end
+
+        ctx = { method: :next_tick, args: [] }
+        expected = [
+          [:on_start, ctx],
+        ]
+        assert_equal expected, events
+
+      end
+    end
+
+    describe "when disabled" do
+      it "succeeds when no hooks are specified" do
+        @em.disable_hooks!
+        ExceptionHandling.logger = Logger.new(STDERR)
+        events = []
+
+        @em.run do
+          @em.next_tick(hooks: {}) { events << :main }
+          @em.stop
+        end
+        assert_equal [:main], events
+      end
+
+      it "raises when hooks specified" do
+        @em.disable_hooks!
+        ExceptionHandling.logger = Logger.new(STDERR)
+        events = []
+        hooks = { on_start: ->(ctx) { events << [:on_start, ctx] } }
+
+        assert_raises ArgumentError, "cannot schedule with hooks when hooks are disabled" do
+          @em.next_tick(hooks: hooks) { nil }
+        end
+      end
+    end
+  end
 end

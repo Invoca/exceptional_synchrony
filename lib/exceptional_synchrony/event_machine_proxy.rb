@@ -14,34 +14,36 @@ module ExceptionalSynchrony
     attr_reader :connection
 
     WRAP_WITH_ENSURE_COMPLETELY_SAFE = (ENV['RACK_ENV'] != 'test')
+    ALLOWED_HOOKS = [:on_schedule, :on_start, :on_exception, :on_end].freeze
 
     def initialize(proxy_class, connection_class)
       @proxy_class = proxy_class
       @synchrony = defined?(@proxy_class::Synchrony) ?  @proxy_class::Synchrony : @proxy_class
       @connection = connection_class
+      disable_hooks!
 
       proxy_class.error_handler do |error|
         ExceptionHandling.log_error(error, "ExceptionalSynchrony uncaught exception: ")
       end
     end
 
-    def add_timer(seconds, &block)
-      @synchrony.add_timer(seconds) do
-        ensure_completely_safe("add_timer") do
-          block.call
-        end
-      end
+    def enable_hooks!
+      @hooks_enabled = true
     end
 
-    def add_periodic_timer(*args, &block)
-      @synchrony.add_periodic_timer(*args) do
-        ensure_completely_safe("add_periodic_timer") do
-          block.call
-        end
-      end
+    def disable_hooks!
+      @hooks_enabled = false
     end
 
-    def sleep(seconds)
+    def add_timer(seconds, hooks: {}, &block)
+      schedule(:add_timer, args: [seconds], hooks: hooks, &block)
+    end
+
+    def add_periodic_timer(*args, hooks: {}, &block)
+      schedule(:add_periodic_timer, args: args, hooks: hooks, &block)
+    end
+
+    def sleep(seconds, hooks: {})
       @synchrony.sleep(seconds)
     end
 
@@ -51,12 +53,8 @@ module ExceptionalSynchrony
       end
     end
 
-    def next_tick(&block)
-      @synchrony.next_tick do
-        ensure_completely_safe("next_tick") do
-          block.call
-        end
-      end
+    def next_tick(hooks: {}, &block)
+      schedule(:next_tick, hooks: hooks) { block.call }
     end
 
     def stop
@@ -123,6 +121,32 @@ module ExceptionalSynchrony
     end
 
     private
+
+    def schedule(method, args: [], hooks: {}, &block)
+      if !@hooks_enabled && hooks.any?
+        raise ArgumentError, "cannot schedule with hooks when hooks are disabled"
+      else
+        hook_context = { method: method, args: args }
+        hooks.delete(:on_schedule)&.call(hook_context)
+        @synchrony.send(method, *args) do
+          run_with_hooks(hook_context, **hooks, &block)
+        end
+      end
+    end
+
+    def run_with_hooks(context, on_start: nil, on_end: nil, on_exception: nil, &block)
+      on_start&.call(context)
+      result = ensure_completely_safe(context[:method].to_s) do
+        begin
+          block.call
+        rescue => ex
+          on_exception&.call(context, ex)
+          raise ex
+        end
+      end
+      on_end&.call(context)
+      result
+    end
 
     def run_with_error_logging(&block)
       ensure_completely_safe("run_with_error_logging") do
