@@ -21,4 +21,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'eventmachine'
   spec.add_dependency 'exception_handling', '~> 2.2'
   spec.add_dependency 'invoca-utils', '~> 0.3'
+  spec.add_dependency 'concurrent-ruby', '~> 1.1'
+  spec.add_dependency 'ulid', '~> 1.2'
+  spec.add_dependency 'opentracing', '~> 0.5'
 end
