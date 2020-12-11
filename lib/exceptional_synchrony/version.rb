@@ -1,3 +1,3 @@
 module ExceptionalSynchrony
-  VERSION = '1.2.0'
+  VERSION = '1.3.passion.1'
 end
