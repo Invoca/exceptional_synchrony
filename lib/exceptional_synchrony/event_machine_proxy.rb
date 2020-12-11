@@ -4,12 +4,15 @@ require 'eventmachine'
 require 'em-http'
 require 'em-synchrony/em-http'
 
+require_relative "./em_tracing"
+
 module ExceptionalSynchrony
   # It is important for this exception to be inherited from Exception so that
   # when thrown it does not get caught by the EventMachine.error_handler.
   class FatalRunError < Exception; end
 
   class EventMachineProxy
+    include EMTracing
 
     attr_reader :connection
 
@@ -53,8 +56,11 @@ module ExceptionalSynchrony
       end
     end
 
-    def next_tick(hooks: {}, &block)
-      schedule(:next_tick, hooks: hooks) { block.call }
+    def next_tick(operation_name: nil, hooks: {}, &block)
+      span = OpenTracing.start_span(
+        operation_name: operation_name || caller_locations.first.label
+      )
+      schedule(:next_tick, hooks: hooks, span: span) { block.call }
     end
 
     def stop
@@ -122,17 +128,25 @@ module ExceptionalSynchrony
 
     private
 
-    def schedule(method, args: [], hooks: {}, &block)
+    def schedule(method, args: [], hooks: {}, span: nil, &block)
       if !@hooks_enabled && hooks.any?
         raise ArgumentError, "cannot schedule with hooks when hooks are disabled"
       else
         hook_context = { method: method, args: args }
+        hooks.merge(trace_hooks(span)) if span
         hooks.delete(:on_schedule)&.call(hook_context)
         @synchrony.send(method, *args) do
-          run_with_hooks(hook_context, **hooks, &block)
+          if span
+            start_span(span) do
+              run_with_hooks(hook_context, **hooks, &block)
+            end
+          else
+            run_with_hooks(hook_context, **hooks, &block)
+          end
         end
       end
     end
+
 
     def run_with_hooks(context, on_start: nil, on_end: nil, on_exception: nil, &block)
       on_start&.call(context)
