@@ -32,8 +32,7 @@ module ExceptionalSynchrony
       end
 
       def close
-        span.finish
-        tracer.on_close(self)
+        span.finish if @finish_on_close
       end
     end
   end

@@ -7,14 +7,25 @@ module ExceptionalSynchrony
     class Span < OpenTracing::Span
       STATES = [:open, :closed].freeze
 
-      attr_reader :context
+      class << self
+        private
+
+        @id = 0
+
+        def next_id
+          @id += 1
+        end
+      end
+
+      attr_reader :id, :context
 
       attr_accessor :operation_name
 
-      def initialize(operation_name:, tracer:, context:)
+      def initialize(operation_name:, tracer:, context: nil)
+        @id             = self.class.next_id
         @operation_name = operation_name
         @tracer         = tracer
-        @context        = context
+        @context        = context || SpanContext::NOOP_INSTANCE
         @start_time     = nil
         @end_time       = nil
         @tags           = {}

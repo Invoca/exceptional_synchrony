@@ -9,7 +9,7 @@ module ExceptionalSynchrony
 
       attr_reader :trace_id, :span_id, :baggage
 
-      def initialize(id: nil, trace_id: nil, baggage: {})
+      def initialize(trace_id: nil, baggage: {})
         @trace_id = trace_id || ULID.generate
         @span_id  = ULID.generate
         @baggage  = baggage
