@@ -33,6 +33,7 @@ module ExceptionalSynchrony
 
       def close
         span.finish if @finish_on_close
+        @tracer.close_span(span)
       end
     end
   end

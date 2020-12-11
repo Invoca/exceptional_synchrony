@@ -28,6 +28,10 @@ module ExceptionalSynchrony
         end
       end
 
+      def close_span(span)
+        ExceptionHandling.log_info("[SPAN] #{span.context.trace_id}:#{span.context.span_id} #{operation.name} (#{span.elapsed_seconds} sec) { logs = #{span.logs.inspect} }", span: span.to_h)
+      end
+
       def inject(span_context, format, carrier)
         case format
         when FORMAT_JSON
