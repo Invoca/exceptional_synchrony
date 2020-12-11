@@ -7,29 +7,21 @@ module ExceptionalSynchrony
     class Span < OpenTracing::Span
       STATES = [:open, :closed].freeze
 
-      class << self
-        private
-
-        @id = 0
-
-        def next_id
-          @id += 1
-        end
-      end
-
-      attr_reader :id, :context
+      attr_reader :id, :tracer, :context, :logs, :tags
 
       attr_accessor :operation_name
 
-      def initialize(operation_name:, tracer:, context: nil)
-        @id             = self.class.next_id
+      @@id = 0
+
+      def initialize(operation_name:, tracer:, trace_id: nil)
+        @id             = (@@id += 1)
         @operation_name = operation_name
         @tracer         = tracer
-        @context        = context || SpanContext::NOOP_INSTANCE
+        @context        = SpanContext.new(trace_id: trace_id)
         @start_time     = nil
         @end_time       = nil
         @tags           = {}
-        @logs           = {}
+        @logs           = []
       end
 
       def log_kv(timestamp: nil, **fields)
@@ -49,7 +41,7 @@ module ExceptionalSynchrony
       end
 
       def start(start_time: nil)
-        @started_at = start_time || Time.now
+        @start_time = start_time || Time.now
       end
 
       def finish(end_time: Time.now)
@@ -57,20 +49,25 @@ module ExceptionalSynchrony
       end
 
       def elapsed_seconds
-        if @started_at && @finished_at
-          (@finished_at - @started_at).round(3)
+        binding.pry
+        if @start_time && @end_time
+          (@end_time - @start_time).round(3)
         end
       end
 
       def to_h
         {
+          context: {
+            trace_id: context.trace_id,
+            span_id: context.span_id,
+            baggage: context.baggage
+          },
           operation_name: @operation_name,
           start_time: @start_time,
           end_time: @end_time,
           elapsed_seconds: elapsed_seconds,
           tags: tags,
           logs: logs.inspect,
-          context: @context.to_h
         }
       end
     end

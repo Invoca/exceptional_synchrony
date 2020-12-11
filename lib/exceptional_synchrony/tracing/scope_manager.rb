@@ -7,19 +7,39 @@ module ExceptionalSynchrony
   module Tracing
     class ScopeManager < OpenTracing::ScopeManager
 
+      def initialize(tracer)
+        @tracer = tracer
+      end
+
       def active
         scopes[active_span_id]
       end
 
       def activate(span, finish_on_close: true)
-        scope = scopes[span.id] || Scope.new(span.tracer, span, finish_on_close)
+        scope = scopes[span.id] || Scope.new(self, span, finish_on_close)
         scope.activate
         self.active_span_id = span.id
+        yield scope if block_given?
         scope
+      end
+
+      def on_scope_close(scope)
+        remove_scope(scope.span.id)
+        @tracer.on_span_close(scope.span)
+      end
+
+      def deactivate
+        self.active_span_id = nil
       end
 
       def scopes
         Thread.current["tracing:scopes"] ||= {}
+      end
+
+      private
+
+      def remove_scope(span_id)
+        Thread.current["tracing:scopes"] = scopes.delete(span_id)
       end
 
       def active_span_id

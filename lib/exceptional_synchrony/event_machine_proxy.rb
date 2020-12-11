@@ -38,15 +38,15 @@ module ExceptionalSynchrony
       @hooks_enabled = false
     end
 
-    def add_timer(seconds, hooks: {}, &block)
-      schedule(:add_timer, args: [seconds], hooks: hooks, &block)
+    def add_timer(seconds, hooks: {}, operation_name: nil, &block)
+      schedule(:add_timer, schedule_method_args: [seconds], hooks: hooks, operation_name: operation_name, &block)
     end
 
-    def add_periodic_timer(*args, hooks: {}, &block)
-      schedule(:add_periodic_timer, args: args, hooks: hooks, &block)
+    def add_periodic_timer(*args, hooks: {}, operation_name: nil, &block)
+      schedule(:add_periodic_timer, schedule_method_args: args, hooks: hooks, operation_name: operation_name, &block)
     end
 
-    def sleep(seconds, hooks: {})
+    def sleep(seconds)
       @synchrony.sleep(seconds)
     end
 
@@ -56,11 +56,8 @@ module ExceptionalSynchrony
       end
     end
 
-    def next_tick(operation_name: nil, hooks: {}, &block)
-      span = OpenTracing.start_span(
-        operation_name: operation_name || caller_locations.first.label
-      )
-      schedule(:next_tick, hooks: hooks, span: span) { block.call }
+    def next_tick(hooks: {}, operation_name: nil, &block)
+      schedule(:next_tick, hooks: hooks, operation_name: operation_name) { block.call }
     end
 
     def stop
@@ -128,14 +125,23 @@ module ExceptionalSynchrony
 
     private
 
-    def schedule(method, args: [], hooks: {}, span: nil, &block)
+    FILTER_CALLER_LABELS = ["schedule", "next_tick", "add_timer", "add_periodic_timer"].freeze
+
+    def schedule(schedule_method, schedule_method_args: [], operation_name: nil, hooks: {}, &block)
       if !@hooks_enabled && hooks.any?
         raise ArgumentError, "cannot schedule with hooks when hooks are disabled"
       else
-        hook_context = { method: method, args: args }
-        hooks.merge(trace_hooks(span)) if span
-        hooks.delete(:on_schedule)&.call(hook_context)
-        @synchrony.send(method, *args) do
+        operation_name = operation_name || caller_locations.map(&:label).find do |label|
+          FILTER_CALLER_LABELS.exclude?(label)
+        end
+        span = OpenTracing.start_span(
+          operation_name: operation_name,
+          tags: { "schedule_method" => schedule_method, "schedule_method_args" => schedule_method_args }
+        )
+        hook_context = { schedule_method: schedule_method, schedule_method_args: schedule_method_args }
+        add_trace_hooks!(hooks, span) if span
+        Array(hooks.delete(:on_schedule)).each { |hook| hook.call(hook_context) }
+        @synchrony.send(schedule_method, *schedule_method_args) do
           if span
             start_span(span) do
               run_with_hooks(hook_context, **hooks, &block)
@@ -147,18 +153,17 @@ module ExceptionalSynchrony
       end
     end
 
-
     def run_with_hooks(context, on_start: nil, on_end: nil, on_exception: nil, &block)
-      on_start&.call(context)
-      result = ensure_completely_safe(context[:method].to_s) do
+      Array(on_start).each { |hook| hook.call(context) }
+      result = ensure_completely_safe(context[:schedule_method].to_s) do
         begin
           block.call
         rescue => ex
-          on_exception&.call(context, ex)
+          Array(on_exception).each { |hook| hook.call(context, ex) }
           raise ex
         end
       end
-      on_end&.call(context)
+      Array(on_end).each { |hook| hook.call(context) }
       result
     end
 

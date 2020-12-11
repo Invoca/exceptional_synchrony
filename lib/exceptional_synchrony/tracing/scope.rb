@@ -12,10 +12,10 @@ module ExceptionalSynchrony
         :finished
       ].freeze
 
-      attr_reader :tracer, :span
+      attr_reader :manager, :span
 
-      def initialize(tracer, span, finish_on_close)
-        @tracer          = tracer
+      def initialize(manager, span, finish_on_close)
+        @manager         = manager
         @span            = span
         @state           = :started
         @finish_on_close = finish_on_close
@@ -33,7 +33,7 @@ module ExceptionalSynchrony
 
       def close
         span.finish if @finish_on_close
-        @tracer.close_span(span)
+        @manager.on_scope_close(self)
       end
     end
   end

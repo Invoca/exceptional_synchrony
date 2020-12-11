@@ -9,7 +9,7 @@ module ExceptionalSynchrony
       attr_reader :scope_manager
 
       def initialize
-        @scope_manager = ScopeManager.new
+        @scope_manager = ScopeManager.new(self)
       end
 
       def start_active_span(operation_name, child_of: nil, references: nil, start_time: Time.now,
@@ -23,15 +23,17 @@ module ExceptionalSynchrony
 
       def start_span(operation_name, child_of: nil, references: nil, start_time: Time.now,
                      tags: nil, ignore_active_scope: false)
-        Span.new(operation_name: operation_name, tracer: self).tap do
-          yield span if block_given?
-        end
+        span = Span.new(operation_name: operation_name, tracer: self)
+        span.start
+        yield span if block_given?
+        span
       end
 
-      def close_span(span)
-        ExceptionHandling.log_info("[SPAN] #{span.context.trace_id}:#{span.context.span_id} #{operation.name} (#{span.elapsed_seconds} sec) { logs = #{span.logs.inspect} }", span: span.to_h)
+      def on_span_close(span)
+        ExceptionHandling.log_info("[SPAN] #{span.context.trace_id}:#{span.context.span_id} #{span.operation_name} (#{span.elapsed_seconds} sec) { logs = #{span.logs.inspect} }", span: span.to_h)
       end
 
+=begin
       def inject(span_context, format, carrier)
         case format
         when FORMAT_JSON
@@ -52,6 +54,7 @@ module ExceptionalSynchrony
           raise RuntimeError, "unsupported OpenTracing format: #{format.inspect}"
         end
       end
+=end
     end
   end
 end

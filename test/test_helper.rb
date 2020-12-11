@@ -15,6 +15,7 @@ Minitest::Reporters.use! [
 require 'webmock'
 require 'webmock/minitest'
 require 'rr'
+require "pry"
 
 ActiveSupport::TestCase.test_order = :sorted
 

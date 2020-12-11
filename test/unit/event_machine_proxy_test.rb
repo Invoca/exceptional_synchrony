@@ -250,6 +250,9 @@ describe ExceptionalSynchrony::EventMachineProxy do
           @em.next_tick(hooks: {}) { events << :main }
           @em.stop
         end
+        #mock(ExceptionHandling).log_info.with_any_args do |**args|
+        #  args
+        #end
         assert_equal [:main], events
       end
 
