@@ -30,7 +30,7 @@ module ExceptionalSynchrony
       end
 
       def on_span_close(span)
-        ExceptionHandling.log_info("[SPAN] #{span.context.trace_id}:#{span.context.span_id} #{span.operation_name} (#{span.elapsed_seconds} sec) { logs = #{span.logs.inspect} }", span: span.to_h)
+        ExceptionHandling.log_info("[SPAN] #{span.context.trace_id}:#{span.context.span_id} \"#{span.operation_name}\" (#{span.elapsed_seconds} sec) { logs = #{span.logs.inspect} }", span: span.to_h)
       end
 
 =begin

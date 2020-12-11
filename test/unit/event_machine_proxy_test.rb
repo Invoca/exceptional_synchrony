@@ -181,10 +181,18 @@ describe ExceptionalSynchrony::EventMachineProxy do
   end
 
   describe "hooks" do
+    before do
+      ExceptionHandling.logger = Logger.new(STDERR)
+      set_test_const("ExceptionalSynchrony::EventMachineProxy::WRAP_WITH_ENSURE_COMPLETELY_SAFE", true)
+      stub(ExceptionHandling).log_info { nil }
+    end
+
     describe "when enabled" do
-      it "calls any registered hooks" do
+      before do
         @em.enable_hooks!
-        ExceptionHandling.logger = Logger.new(STDERR)
+      end
+
+      it "calls any registered hooks" do
         events = []
         hooks = {
           on_schedule: ->(ctx) { events << [:on_schedule, ctx] },
@@ -195,7 +203,6 @@ describe ExceptionalSynchrony::EventMachineProxy do
         ex = ArgumentError.new("nope")
         mock(ExceptionHandling).log_error(ex, "next_tick", {})
 
-        set_test_const("ExceptionalSynchrony::EventMachineProxy::WRAP_WITH_ENSURE_COMPLETELY_SAFE", true)
         @em.run do
           @em.next_tick(hooks: hooks) do
             raise ex
@@ -203,7 +210,7 @@ describe ExceptionalSynchrony::EventMachineProxy do
           @em.stop
         end
 
-        ctx = { method: :next_tick, args: [] }
+        ctx = { schedule_method: :next_tick, schedule_method_args: [] }
         expected = [
           [:on_schedule, ctx],
           [:on_start, ctx],
@@ -213,9 +220,30 @@ describe ExceptionalSynchrony::EventMachineProxy do
         assert_equal expected, events
       end
 
+      it "allows multiple proces to be registered for the same hook" do
+        events = []
+        hooks = {
+          on_start: [
+                      ->(ctx) { events << [:on_start_1, ctx] },
+                      ->(ctx) { events << [:on_start_2, ctx] }
+                    ]
+        }
+
+        @em.run do
+          @em.next_tick(hooks: hooks) { nil }
+          @em.stop
+        end
+
+        ctx = { schedule_method: :next_tick, schedule_method_args: [] }
+        expected = [
+          [:on_start_1, ctx],
+          [:on_start_2, ctx],
+        ]
+        assert_equal expected, events
+
+      end
+
       it "should allow hooks to be ignored" do
-        @em.enable_hooks!
-        ExceptionHandling.logger = Logger.new(STDERR)
         events = []
         hooks = {
           on_start: ->(ctx) { events << [:on_start, ctx] },
@@ -223,7 +251,6 @@ describe ExceptionalSynchrony::EventMachineProxy do
         ex = ArgumentError.new("nope")
         mock(ExceptionHandling).log_error(ex, "next_tick", {})
 
-        set_test_const("ExceptionalSynchrony::EventMachineProxy::WRAP_WITH_ENSURE_COMPLETELY_SAFE", true)
         @em.run do
           @em.next_tick(hooks: hooks) do
             raise ex
@@ -231,7 +258,7 @@ describe ExceptionalSynchrony::EventMachineProxy do
           @em.stop
         end
 
-        ctx = { method: :next_tick, args: [] }
+        ctx = { schedule_method: :next_tick, schedule_method_args: [] }
         expected = [
           [:on_start, ctx],
         ]
@@ -241,9 +268,11 @@ describe ExceptionalSynchrony::EventMachineProxy do
     end
 
     describe "when disabled" do
-      it "succeeds when no hooks are specified" do
+      before do
         @em.disable_hooks!
-        ExceptionHandling.logger = Logger.new(STDERR)
+      end
+
+      it "succeeds when no hooks are specified" do
         events = []
 
         @em.run do
@@ -257,13 +286,48 @@ describe ExceptionalSynchrony::EventMachineProxy do
       end
 
       it "raises when hooks specified" do
-        @em.disable_hooks!
-        ExceptionHandling.logger = Logger.new(STDERR)
         events = []
         hooks = { on_start: ->(ctx) { events << [:on_start, ctx] } }
 
         assert_raises ArgumentError, "cannot schedule with hooks when hooks are disabled" do
           @em.next_tick(hooks: hooks) { nil }
+        end
+      end
+    end
+  end
+
+  describe "tracing" do
+    before do
+      ExceptionHandling.logger = Logger.new(STDERR)
+      set_test_const("ExceptionalSynchrony::EventMachineProxy::WRAP_WITH_ENSURE_COMPLETELY_SAFE", true)
+    end
+
+    describe "with hooks enabled" do
+      before do
+        @em.enable_hooks!
+      end
+
+      it "emits spans" do
+        mock(ExceptionHandling).log_info.with(/^\[SPAN\] [A-Z0-9]+\:[A-Z0-9]+/, anything)
+
+        @em.run do
+          @em.next_tick { nil }
+          @em.stop
+        end
+      end
+    end
+
+    describe "with hooks disabled" do
+      before do
+        @em.disable_hooks!
+      end
+
+      it "doesn't emit spans" do
+        dont_allow(ExceptionHandling).log_info.with(/^\[SPAN\] [A-Z0-9]+\:[A-Z0-9]+/, anything)
+
+        @em.run do
+          @em.next_tick { nil }
+          @em.stop
         end
       end
     end

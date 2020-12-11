@@ -49,7 +49,6 @@ module ExceptionalSynchrony
       end
 
       def elapsed_seconds
-        binding.pry
         if @start_time && @end_time
           (@end_time - @start_time).round(3)
         end

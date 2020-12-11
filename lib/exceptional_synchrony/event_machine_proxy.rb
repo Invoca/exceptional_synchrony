@@ -134,10 +134,12 @@ module ExceptionalSynchrony
         operation_name = operation_name || caller_locations.map(&:label).find do |label|
           FILTER_CALLER_LABELS.exclude?(label)
         end
-        span = OpenTracing.start_span(
-          operation_name: operation_name,
-          tags: { "schedule_method" => schedule_method, "schedule_method_args" => schedule_method_args }
-        )
+        if @hooks_enabled
+          span = OpenTracing.start_span(
+            operation_name,
+            tags: { "schedule_method" => schedule_method, "schedule_method_args" => schedule_method_args }
+          )
+        end
         hook_context = { schedule_method: schedule_method, schedule_method_args: schedule_method_args }
         add_trace_hooks!(hooks, span) if span
         Array(hooks.delete(:on_schedule)).each { |hook| hook.call(hook_context) }
