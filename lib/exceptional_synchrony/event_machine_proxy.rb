@@ -43,14 +43,14 @@ module ExceptionalSynchrony
       @hooks_enabled = false
     end
 
-    def add_timer(seconds, hooks: {}, operation_name: nil, trace_id: nil, &block)
-      schedule(:add_timer, schedule_method_args: [seconds], hooks: hooks,
-               operation_name: operation_name, trace_id: trace_id, &block)
+    def add_timer(seconds, hooks: {}, operation_name: nil, trace_id: nil, no_trace: false, &block)
+      schedule(:add_timer, schedule_method_args: [seconds], hooks: hooks, operation_name: operation_name,
+               trace_id: trace_id, no_trace: no_trace, &block)
     end
 
-    def add_periodic_timer(*args, hooks: {}, operation_name: nil, trace_id: nil, &block)
-      schedule(:add_periodic_timer, schedule_method_args: args, hooks: hooks,
-               operation_name: operation_name, trace_id: trace_id, &block)
+    def add_periodic_timer(*args, hooks: {}, operation_name: nil, trace_id: nil, no_trace: false, &block)
+      schedule(:add_periodic_timer, schedule_method_args: args, hooks: hooks, operation_name: operation_name,
+               trace_id: trace_id, no_trace: no_trace, &block)
     end
 
     def sleep(seconds)
@@ -63,8 +63,9 @@ module ExceptionalSynchrony
       end
     end
 
-    def next_tick(hooks: {}, operation_name: nil, trace_id: nil, &block)
-      schedule(:next_tick, hooks: hooks, operation_name: operation_name, trace_id: trace_id) { block.call }
+    def next_tick(hooks: {}, operation_name: nil, trace_id: nil, no_trace: false, &block)
+      schedule(:next_tick, hooks: hooks, operation_name: operation_name,
+               trace_id: trace_id, no_trace: no_trace) { block.call }
     end
 
     def stop
@@ -134,14 +135,15 @@ module ExceptionalSynchrony
 
     FILTER_CALLER_LABELS = ["schedule", "next_tick", "add_timer", "add_periodic_timer"].freeze
 
-    def schedule(schedule_method, schedule_method_args: [], operation_name: nil, trace_id: nil, hooks: {}, &block)
+    def schedule(schedule_method, schedule_method_args: [], operation_name: nil,
+                 trace_id: nil, no_trace: false, hooks: {}, &block)
       if !@hooks_enabled && hooks.any?
         raise ArgumentError, "cannot schedule with hooks when hooks are disabled"
       else
         operation_name = operation_name || caller_locations.map(&:label).find do |label|
           trace_filtered_caller_labels.exclude?(label)
         end
-        if @hooks_enabled
+        if @hooks_enabled && !no_trace
           span = OpenTracing.start_span(
             operation_name,
             trace_id: trace_id,
