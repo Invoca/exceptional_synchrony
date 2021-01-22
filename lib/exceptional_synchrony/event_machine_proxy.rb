@@ -16,6 +16,8 @@ module ExceptionalSynchrony
 
     attr_reader :connection
 
+    attr_accessor :trace_filtered_caller_labels
+
     WRAP_WITH_ENSURE_COMPLETELY_SAFE = (ENV['RACK_ENV'] != 'test')
     ALLOWED_HOOKS = [:on_schedule, :on_start, :on_exception, :on_end].freeze
 
@@ -24,6 +26,8 @@ module ExceptionalSynchrony
       @synchrony = defined?(@proxy_class::Synchrony) ?  @proxy_class::Synchrony : @proxy_class
       @connection = connection_class
       disable_hooks!
+
+      @trace_filtered_caller_labels = ["schedule", "next_tick", "add_timer", "add_periodic_timer"]
 
       proxy_class.error_handler do |error|
         ExceptionHandling.log_error(error, "ExceptionalSynchrony uncaught exception: ")
@@ -135,7 +139,7 @@ module ExceptionalSynchrony
         raise ArgumentError, "cannot schedule with hooks when hooks are disabled"
       else
         operation_name = operation_name || caller_locations.map(&:label).find do |label|
-          FILTER_CALLER_LABELS.exclude?(label)
+          trace_filtered_caller_labels.exclude?(label)
         end
         if @hooks_enabled
           span = OpenTracing.start_span(
