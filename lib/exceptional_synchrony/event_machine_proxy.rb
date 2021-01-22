@@ -30,6 +30,7 @@ module ExceptionalSynchrony
       end
     end
 
+
     def enable_hooks!
       @hooks_enabled = true
     end
@@ -38,12 +39,14 @@ module ExceptionalSynchrony
       @hooks_enabled = false
     end
 
-    def add_timer(seconds, hooks: {}, operation_name: nil, &block)
-      schedule(:add_timer, schedule_method_args: [seconds], hooks: hooks, operation_name: operation_name, &block)
+    def add_timer(seconds, hooks: {}, operation_name: nil, trace_id: nil, &block)
+      schedule(:add_timer, schedule_method_args: [seconds], hooks: hooks,
+               operation_name: operation_name, trace_id: trace_id, &block)
     end
 
-    def add_periodic_timer(*args, hooks: {}, operation_name: nil, &block)
-      schedule(:add_periodic_timer, schedule_method_args: args, hooks: hooks, operation_name: operation_name, &block)
+    def add_periodic_timer(*args, hooks: {}, operation_name: nil, trace_id: nil, &block)
+      schedule(:add_periodic_timer, schedule_method_args: args, hooks: hooks,
+               operation_name: operation_name, trace_id: trace_id, &block)
     end
 
     def sleep(seconds)
@@ -56,8 +59,8 @@ module ExceptionalSynchrony
       end
     end
 
-    def next_tick(hooks: {}, operation_name: nil, &block)
-      schedule(:next_tick, hooks: hooks, operation_name: operation_name) { block.call }
+    def next_tick(hooks: {}, operation_name: nil, trace_id: nil, &block)
+      schedule(:next_tick, hooks: hooks, operation_name: operation_name, trace_id: trace_id) { block.call }
     end
 
     def stop
@@ -127,7 +130,7 @@ module ExceptionalSynchrony
 
     FILTER_CALLER_LABELS = ["schedule", "next_tick", "add_timer", "add_periodic_timer"].freeze
 
-    def schedule(schedule_method, schedule_method_args: [], operation_name: nil, hooks: {}, &block)
+    def schedule(schedule_method, schedule_method_args: [], operation_name: nil, trace_id: nil, hooks: {}, &block)
       if !@hooks_enabled && hooks.any?
         raise ArgumentError, "cannot schedule with hooks when hooks are disabled"
       else
@@ -137,6 +140,7 @@ module ExceptionalSynchrony
         if @hooks_enabled
           span = OpenTracing.start_span(
             operation_name,
+            trace_id: trace_id,
             tags: { "schedule_method" => schedule_method, "schedule_method_args" => schedule_method_args }
           )
         end

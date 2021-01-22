@@ -1,0 +1,137 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.8	//
+CallbackExceptions	lib/exceptional_synchrony/callback_exceptions.rb	/^  module CallbackExceptions$/;"	m	class:ExceptionalSynchrony
+EMTracing	lib/exceptional_synchrony/em_tracing.rb	/^  module EMTracing$/;"	m	class:ExceptionalSynchrony
+EventMachineProxy	lib/exceptional_synchrony/event_machine_proxy.rb	/^  class EventMachineProxy$/;"	c	class:ExceptionalSynchrony
+ExceptionalSynchrony	lib/exceptional_synchrony.rb	/^module ExceptionalSynchrony$/;"	m
+ExceptionalSynchrony	lib/exceptional_synchrony/callback_exceptions.rb	/^module ExceptionalSynchrony$/;"	m
+ExceptionalSynchrony	lib/exceptional_synchrony/em_tracing.rb	/^module ExceptionalSynchrony$/;"	m
+ExceptionalSynchrony	lib/exceptional_synchrony/event_machine_proxy.rb	/^module ExceptionalSynchrony$/;"	m
+ExceptionalSynchrony	lib/exceptional_synchrony/limited_work_queue.rb	/^module ExceptionalSynchrony$/;"	m
+ExceptionalSynchrony	lib/exceptional_synchrony/parallel_sync.rb	/^module ExceptionalSynchrony$/;"	m
+ExceptionalSynchrony	lib/exceptional_synchrony/tracing.rb	/^module ExceptionalSynchrony$/;"	m
+ExceptionalSynchrony	lib/exceptional_synchrony/tracing/scope.rb	/^module ExceptionalSynchrony$/;"	m
+ExceptionalSynchrony	lib/exceptional_synchrony/tracing/scope_manager.rb	/^module ExceptionalSynchrony$/;"	m
+ExceptionalSynchrony	lib/exceptional_synchrony/tracing/span.rb	/^module ExceptionalSynchrony$/;"	m
+ExceptionalSynchrony	lib/exceptional_synchrony/tracing/span_context.rb	/^module ExceptionalSynchrony$/;"	m
+ExceptionalSynchrony	lib/exceptional_synchrony/tracing/tracer.rb	/^module ExceptionalSynchrony$/;"	m
+ExceptionalSynchrony	lib/exceptional_synchrony/version.rb	/^module ExceptionalSynchrony$/;"	m
+Failure	lib/exceptional_synchrony/callback_exceptions.rb	/^    class Failure < StandardError; end$/;"	c	class:ExceptionalSynchrony.CallbackExceptions
+FatalRunError	lib/exceptional_synchrony/event_machine_proxy.rb	/^  class FatalRunError < Exception; end$/;"	c	class:ExceptionalSynchrony
+LWQTestProc	test/unit/limited_work_queue_test.rb	/^    class LWQTestProc$/;"	c
+LWQTestProcWithMergeDrop	test/unit/limited_work_queue_test.rb	/^    class LWQTestProcWithMergeDrop < LWQTestProc$/;"	c
+LWQTestProcWithMergeReplace	test/unit/limited_work_queue_test.rb	/^    class LWQTestProcWithMergeReplace < LWQTestProc$/;"	c
+LimitedWorkQueue	lib/exceptional_synchrony/limited_work_queue.rb	/^  class LimitedWorkQueue$/;"	c	class:ExceptionalSynchrony
+ParallelSync	lib/exceptional_synchrony/parallel_sync.rb	/^  class ParallelSync$/;"	c	class:ExceptionalSynchrony
+RunProxyMock	test/unit/event_machine_proxy_test.rb	/^  class RunProxyMock$/;"	c
+Scope	lib/exceptional_synchrony/tracing/scope.rb	/^    class Scope < OpenTracing::Scope$/;"	c	class:ExceptionalSynchrony.Tracing
+ScopeManager	lib/exceptional_synchrony/tracing/scope_manager.rb	/^    class ScopeManager < OpenTracing::ScopeManager$/;"	c	class:ExceptionalSynchrony.Tracing
+Span	lib/exceptional_synchrony/tracing/span.rb	/^    class Span < OpenTracing::Span$/;"	c	class:ExceptionalSynchrony.Tracing
+SpanContext	lib/exceptional_synchrony/tracing/span_context.rb	/^    class SpanContext < OpenTracing::SpanContext$/;"	c	class:ExceptionalSynchrony.Tracing
+SynchronyProxyMock	test/unit/event_machine_proxy_test.rb	/^  class SynchronyProxyMock < RunProxyMock$/;"	c
+TestHelper	test/test_helper.rb	/^module TestHelper$/;"	m
+TestProc	test/unit/parallel_sync_test.rb	/^  class TestProc$/;"	c
+TestProcWithMergeReplace	test/unit/parallel_sync_test.rb	/^  class TestProcWithMergeReplace < TestProc$/;"	c
+Tracer	lib/exceptional_synchrony/tracing/tracer.rb	/^    class Tracer < OpenTracing::Tracer$/;"	c	class:ExceptionalSynchrony.Tracing
+Tracing	lib/exceptional_synchrony/tracing/scope.rb	/^  module Tracing$/;"	m	class:ExceptionalSynchrony
+Tracing	lib/exceptional_synchrony/tracing/scope_manager.rb	/^  module Tracing$/;"	m	class:ExceptionalSynchrony
+Tracing	lib/exceptional_synchrony/tracing/span.rb	/^  module Tracing$/;"	m	class:ExceptionalSynchrony
+Tracing	lib/exceptional_synchrony/tracing/span_context.rb	/^  module Tracing$/;"	m	class:ExceptionalSynchrony
+Tracing	lib/exceptional_synchrony/tracing/tracer.rb	/^  module Tracing$/;"	m	class:ExceptionalSynchrony
+activate	lib/exceptional_synchrony/tracing/scope.rb	/^      def activate$/;"	f	class:ExceptionalSynchrony.Tracing
+activate	lib/exceptional_synchrony/tracing/scope_manager.rb	/^      def activate(span, finish_on_close: true)$/;"	f	class:ExceptionalSynchrony.Tracing.ScopeManager
+active	lib/exceptional_synchrony/tracing/scope_manager.rb	/^      def active$/;"	f	class:ExceptionalSynchrony.Tracing.ScopeManager
+active_span_id	lib/exceptional_synchrony/tracing/scope_manager.rb	/^      def active_span_id$/;"	f	class:ExceptionalSynchrony.Tracing.ScopeManager
+active_span_id=	lib/exceptional_synchrony/tracing/scope_manager.rb	/^      def active_span_id=(value)$/;"	f	class:ExceptionalSynchrony.Tracing.ScopeManager
+add	lib/exceptional_synchrony/parallel_sync.rb	/^    def add(proc = nil, &block)$/;"	f	class:ExceptionalSynchrony.ParallelSync
+add!	lib/exceptional_synchrony/limited_work_queue.rb	/^    def add!(proc = nil, &block)$/;"	f	class:ExceptionalSynchrony.LimitedWorkQueue
+add_periodic_timer	lib/exceptional_synchrony/event_machine_proxy.rb	/^    def add_periodic_timer(*args, hooks: {}, operation_name: nil, &block)$/;"	f	class:ExceptionalSynchrony.EventMachineProxy
+add_timer	lib/exceptional_synchrony/event_machine_proxy.rb	/^    def add_timer(seconds, hooks: {}, operation_name: nil, &block)$/;"	f	class:ExceptionalSynchrony.EventMachineProxy
+add_trace_hooks!	lib/exceptional_synchrony/em_tracing.rb	/^    def add_trace_hooks!(hooks, span)$/;"	f	class:ExceptionalSynchrony.EMTracing
+call	test/unit/limited_work_queue_test.rb	/^      def call$/;"	f	class:LWQTestProc
+call	test/unit/parallel_sync_test.rb	/^    def call$/;"	f	class:TestProc
+cancel	test/unit/limited_work_queue_test.rb	/^      def cancel$/;"	f	class:LWQTestProc
+cancel	test/unit/parallel_sync_test.rb	/^    def cancel$/;"	f	class:TestProc
+check_progress	lib/exceptional_synchrony/parallel_sync.rb	/^    def check_progress(original_fiber)$/;"	f	class:ExceptionalSynchrony.ParallelSync
+close	lib/exceptional_synchrony/tracing/scope.rb	/^      def close$/;"	f	class:ExceptionalSynchrony.Tracing
+connect	lib/exceptional_synchrony/event_machine_proxy.rb	/^    def connect(server, port = nil, handler = nil, *args, &block)$/;"	f	class:ExceptionalSynchrony.EventMachineProxy
+deactivate	lib/exceptional_synchrony/tracing/scope_manager.rb	/^      def deactivate$/;"	f	class:ExceptionalSynchrony.Tracing.ScopeManager
+defer	lib/exceptional_synchrony/event_machine_proxy.rb	/^    def defer(context, &block)$/;"	f	class:ExceptionalSynchrony.EventMachineProxy
+disable_hooks!	lib/exceptional_synchrony/event_machine_proxy.rb	/^    def disable_hooks!$/;"	f	class:ExceptionalSynchrony.EventMachineProxy
+elapsed_seconds	lib/exceptional_synchrony/tracing/span.rb	/^      def elapsed_seconds$/;"	f	class:ExceptionalSynchrony.Tracing.Span
+enable_hooks!	lib/exceptional_synchrony/event_machine_proxy.rb	/^    def enable_hooks!$/;"	f	class:ExceptionalSynchrony.EventMachineProxy
+encapsulate	test/unit/parallel_sync_test.rb	/^    def encapsulate(procs = {}, &proc)$/;"	f	class:TestProc
+ensure_callback	lib/exceptional_synchrony/callback_exceptions.rb	/^      def ensure_callback(deferrable, &block)$/;"	f	class:ExceptionalSynchrony.CallbackExceptions
+ensure_completely_safe	lib/exceptional_synchrony/event_machine_proxy.rb	/^    def ensure_completely_safe(message)$/;"	f	class:ExceptionalSynchrony.EventMachineProxy
+error	test/unit/callback_exceptions_test.rb	/^        def deferrable.error$/;"	F
+error_handler	test/unit/event_machine_proxy_test.rb	/^      def error_handler$/;"	f	class:RunProxyMock
+error_is_a_timeout?	lib/exceptional_synchrony/callback_exceptions.rb	/^      def error_is_a_timeout?(error)$/;"	f	class:ExceptionalSynchrony
+extract	lib/exceptional_synchrony/tracing/tracer.rb	/^      def extract(format, carrier)$/;"	f	class:ExceptionalSynchrony.Tracing.Tracer.inject
+finish	lib/exceptional_synchrony/tracing/span.rb	/^      def finish(end_time: Time.now)$/;"	f	class:ExceptionalSynchrony.Tracing.Span
+finished?	lib/exceptional_synchrony/parallel_sync.rb	/^    def finished?$/;"	f	class:ExceptionalSynchrony.ParallelSync
+get_baggage_item	lib/exceptional_synchrony/tracing/span.rb	/^      def get_baggage_item(key)$/;"	f	class:ExceptionalSynchrony.Tracing.Span
+handle_result_error	lib/exceptional_synchrony/callback_exceptions.rb	/^      def handle_result_error(result)$/;"	f	class:ExceptionalSynchrony.CallbackExceptions
+included	test/test_helper.rb	/^  def self.included(base)$/;"	F	class:TestHelper
+initialize	lib/exceptional_synchrony/event_machine_proxy.rb	/^    def initialize(proxy_class, connection_class)$/;"	f	class:ExceptionalSynchrony.EventMachineProxy
+initialize	lib/exceptional_synchrony/limited_work_queue.rb	/^    def initialize(em, limit)$/;"	f	class:ExceptionalSynchrony.LimitedWorkQueue
+initialize	lib/exceptional_synchrony/parallel_sync.rb	/^    def initialize(em, downstream = nil)$/;"	f	class:ExceptionalSynchrony.ParallelSync
+initialize	lib/exceptional_synchrony/tracing/scope.rb	/^      def initialize(manager, span, finish_on_close)$/;"	f	class:ExceptionalSynchrony.Tracing.Scope
+initialize	lib/exceptional_synchrony/tracing/scope_manager.rb	/^      def initialize(tracer)$/;"	f	class:ExceptionalSynchrony.Tracing.ScopeManager
+initialize	lib/exceptional_synchrony/tracing/span.rb	/^      def initialize(operation_name:, tracer:, trace_id: nil)$/;"	f	class:ExceptionalSynchrony.Tracing.Span
+initialize	lib/exceptional_synchrony/tracing/span_context.rb	/^      def initialize(trace_id: nil, baggage: {})$/;"	f	class:ExceptionalSynchrony.Tracing.SpanContext
+initialize	lib/exceptional_synchrony/tracing/tracer.rb	/^      def initialize$/;"	f	class:ExceptionalSynchrony.Tracing.Tracer
+initialize	test/unit/limited_work_queue_test.rb	/^      def initialize(cancel_proc = nil, &block)$/;"	f	class:LWQTestProc
+initialize	test/unit/parallel_sync_test.rb	/^    def initialize(procs = {}, &block)$/;"	f	class:TestProc
+inject	lib/exceptional_synchrony/tracing/tracer.rb	/^      def inject(span_context, format, carrier)$/;"	f	class:ExceptionalSynchrony.Tracing.Tracer
+items	lib/exceptional_synchrony/limited_work_queue.rb	/^    def items$/;"	f	class:ExceptionalSynchrony.LimitedWorkQueue
+log_kv	lib/exceptional_synchrony/tracing/span.rb	/^      def log_kv(timestamp: nil, **fields)$/;"	f	class:ExceptionalSynchrony.Tracing.Span
+map_deferred_result	lib/exceptional_synchrony/callback_exceptions.rb	/^      def map_deferred_result(deferrable)$/;"	f	class:ExceptionalSynchrony.CallbackExceptions
+merge	test/unit/limited_work_queue_test.rb	/^        def merge(queue)$/;"	f
+merge	test/unit/limited_work_queue_test.rb	/^      def merge(queue)$/;"	f	class:LWQTestProcWithMergeDrop
+merge	test/unit/limited_work_queue_test.rb	/^      def merge(queue)$/;"	f	class:LWQTestProcWithMergeReplace
+merge	test/unit/parallel_sync_test.rb	/^    def merge(queue)$/;"	f	class:TestProcWithMergeReplace
+next_tick	lib/exceptional_synchrony/event_machine_proxy.rb	/^    def next_tick(hooks: {}, operation_name: nil, &block)$/;"	f	class:ExceptionalSynchrony.EventMachineProxy
+on_scope_close	lib/exceptional_synchrony/tracing/scope_manager.rb	/^      def on_scope_close(scope)$/;"	f	class:ExceptionalSynchrony.Tracing.ScopeManager
+on_span_close	lib/exceptional_synchrony/tracing/tracer.rb	/^      def on_span_close(span)$/;"	f	class:ExceptionalSynchrony.Tracing.Tracer
+parallel	lib/exceptional_synchrony/parallel_sync.rb	/^    def self.parallel(em, *args)$/;"	F	class:ExceptionalSynchrony.ParallelSync
+pause!	lib/exceptional_synchrony/limited_work_queue.rb	/^    def pause!$/;"	f	class:ExceptionalSynchrony.LimitedWorkQueue
+paused?	lib/exceptional_synchrony/limited_work_queue.rb	/^    def paused?$/;"	f	class:ExceptionalSynchrony.LimitedWorkQueue
+queue_empty?	lib/exceptional_synchrony/limited_work_queue.rb	/^    def queue_empty?$/;"	f	class:ExceptionalSynchrony.LimitedWorkQueue
+raise_any_exceptions	lib/exceptional_synchrony/parallel_sync.rb	/^    def raise_any_exceptions(responses)$/;"	f	class:ExceptionalSynchrony.ParallelSync
+raise_failure_for_result	lib/exceptional_synchrony/callback_exceptions.rb	/^      def raise_failure_for_result(result, error: nil)$/;"	f	class:ExceptionalSynchrony.CallbackExceptions
+reactor_running?	lib/exceptional_synchrony/event_machine_proxy.rb	/^    def reactor_running?$/;"	f	class:ExceptionalSynchrony.EventMachineProxy
+remove_scope	lib/exceptional_synchrony/tracing/scope_manager.rb	/^      def remove_scope(span_id)$/;"	f	class:ExceptionalSynchrony.Tracing.ScopeManager
+rescue_exceptions_and_ensure_exit	lib/exceptional_synchrony/event_machine_proxy.rb	/^    def rescue_exceptions_and_ensure_exit(context)$/;"	f	class:ExceptionalSynchrony.EventMachineProxy
+return_exception	lib/exceptional_synchrony/callback_exceptions.rb	/^      def return_exception(*args)$/;"	f	class:ExceptionalSynchrony.CallbackExceptions
+run	lib/exceptional_synchrony/event_machine_proxy.rb	/^    def run(on_error: :log, &block)$/;"	f	class:ExceptionalSynchrony.EventMachineProxy
+run	test/unit/event_machine_proxy_test.rb	/^      def run(&block)$/;"	f	class:RunProxyMock
+run_all!	lib/exceptional_synchrony/parallel_sync.rb	/^    def run_all!$/;"	f	class:ExceptionalSynchrony.ParallelSync
+run_and_stop	lib/exceptional_synchrony/event_machine_proxy.rb	/^    def run_and_stop$/;"	f	class:ExceptionalSynchrony.EventMachineProxy
+run_with_error_logging	lib/exceptional_synchrony/event_machine_proxy.rb	/^    def run_with_error_logging(&block)$/;"	f	class:ExceptionalSynchrony.EventMachineProxy
+run_with_error_raising	lib/exceptional_synchrony/event_machine_proxy.rb	/^    def run_with_error_raising(&block)$/;"	f	class:ExceptionalSynchrony
+run_with_hooks	lib/exceptional_synchrony/event_machine_proxy.rb	/^    def run_with_hooks(context, on_start: nil, on_end: nil, on_exception: nil, &block)$/;"	f	class:ExceptionalSynchrony.EventMachineProxy
+schedule	lib/exceptional_synchrony/event_machine_proxy.rb	/^    def schedule(schedule_method, schedule_method_args: [], operation_name: nil, hooks: {}, &block)$/;"	f	class:ExceptionalSynchrony.EventMachineProxy
+scopes	lib/exceptional_synchrony/tracing/scope_manager.rb	/^      def scopes$/;"	f	class:ExceptionalSynchrony.Tracing.ScopeManager
+set_baggage_item	lib/exceptional_synchrony/tracing/span.rb	/^      def set_baggage_item(key, value)$/;"	f	class:ExceptionalSynchrony.Tracing.Span
+set_tag	lib/exceptional_synchrony/tracing/span.rb	/^      def set_tag(key, value)$/;"	f	class:ExceptionalSynchrony.Tracing.Span
+set_test_const	test/test_helper.rb	/^  def set_test_const(const_name, value)$/;"	f
+sleep	lib/exceptional_synchrony/event_machine_proxy.rb	/^    def sleep(seconds)$/;"	f	class:ExceptionalSynchrony.EventMachineProxy
+start	lib/exceptional_synchrony/tracing/span.rb	/^      def start(start_time: nil)$/;"	f	class:ExceptionalSynchrony.Tracing.Span
+start_active_span	lib/exceptional_synchrony/tracing/tracer.rb	/^      def start_active_span(operation_name, child_of: nil, references: nil, start_time: Time.now,$/;"	f	class:ExceptionalSynchrony.Tracing.Tracer
+start_span	lib/exceptional_synchrony/em_tracing.rb	/^    def start_span(span, &blk)$/;"	f	class:ExceptionalSynchrony.EMTracing
+start_span	lib/exceptional_synchrony/tracing/tracer.rb	/^      def start_span(operation_name, child_of: nil, references: nil, start_time: Time.now,$/;"	f	class:ExceptionalSynchrony.Tracing.Tracer
+stop	lib/exceptional_synchrony/event_machine_proxy.rb	/^    def stop$/;"	f	class:ExceptionalSynchrony.EventMachineProxy
+synchrony	test/unit/event_machine_proxy_test.rb	/^      def synchrony(&block)$/;"	f	class:SynchronyProxyMock
+to_h	lib/exceptional_synchrony/tracing/span.rb	/^      def to_h$/;"	f	class:ExceptionalSynchrony.Tracing.Span
+to_proc	test/unit/parallel_sync_test.rb	/^    def to_proc$/;"	f	class:TestProc
+truncated_inspect	lib/exceptional_synchrony/callback_exceptions.rb	/^      def truncated_inspect(obj)$/;"	f	class:ExceptionalSynchrony
+unpause!	lib/exceptional_synchrony/limited_work_queue.rb	/^    def unpause!$/;"	f	class:ExceptionalSynchrony.LimitedWorkQueue
+work!	lib/exceptional_synchrony/limited_work_queue.rb	/^    def work!$/;"	f	class:ExceptionalSynchrony.LimitedWorkQueue
+worker_done	lib/exceptional_synchrony/limited_work_queue.rb	/^    def worker_done$/;"	f	class:ExceptionalSynchrony.LimitedWorkQueue
+workers_empty?	lib/exceptional_synchrony/limited_work_queue.rb	/^    def workers_empty?$/;"	f	class:ExceptionalSynchrony.LimitedWorkQueue
+workers_full?	lib/exceptional_synchrony/limited_work_queue.rb	/^    def workers_full?$/;"	f	class:ExceptionalSynchrony.LimitedWorkQueue
+yield_to_reactor	lib/exceptional_synchrony/event_machine_proxy.rb	/^    def yield_to_reactor$/;"	f	class:ExceptionalSynchrony.EventMachineProxy

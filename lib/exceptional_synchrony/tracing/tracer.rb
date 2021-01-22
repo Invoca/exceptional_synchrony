@@ -21,9 +21,9 @@ module ExceptionalSynchrony
         end
       end
 
-      def start_span(operation_name, child_of: nil, references: nil, start_time: Time.now,
+      def start_span(operation_name, child_of: nil, references: nil, start_time: Time.now, trace_id: nil,
                      tags: nil, ignore_active_scope: false)
-        span = Span.new(operation_name: operation_name, tracer: self)
+        span = Span.new(operation_name: operation_name, trace_id: trace_id, tracer: self)
         span.start
         yield span if block_given?
         span
@@ -31,6 +31,7 @@ module ExceptionalSynchrony
 
       def on_span_close(span)
         ExceptionHandling.log_info("[SPAN] #{span.context.trace_id}:#{span.context.span_id} \"#{span.operation_name}\" (#{span.elapsed_seconds} sec) { logs = #{span.logs.inspect} }", span: span.to_h)
+        puts("[SPAN] #{span.context.trace_id}:#{span.context.span_id} \"#{span.operation_name}\" (#{span.elapsed_seconds} sec) { logs = #{span.logs.inspect} }")
       end
 
 =begin
