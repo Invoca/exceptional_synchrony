@@ -31,7 +31,7 @@ module ExceptionalSynchrony
 
       def on_span_close(span)
         ExceptionHandling.log_info("[SPAN] #{span.context.trace_id}:#{span.context.span_id} \"#{span.operation_name}\" (#{span.elapsed_seconds} sec) { logs = #{span.logs.inspect} }", span: span.to_h)
-        puts("[SPAN] #{span.context.trace_id}:#{span.context.span_id} \"#{span.operation_name}\" (#{span.elapsed_seconds} sec) { logs = #{span.logs.inspect} }")
+        #puts("[SPAN] #{span.context.trace_id}:#{span.context.span_id} \"#{span.operation_name}\" (#{span.elapsed_seconds} sec) { logs = #{span.logs.inspect} }")
       end
 
 =begin

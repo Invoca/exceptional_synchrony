@@ -16,10 +16,11 @@ module ExceptionalSynchrony
       end
 
       def activate(span, finish_on_close: true)
-        scope = scopes[span.id] || Scope.new(self, span, finish_on_close)
+        scope = (scopes[span.id] ||= Scope.new(self, span, finish_on_close))
         scope.activate
         self.active_span_id = span.id
         yield scope if block_given?
+        ExceptionHandling.log_info("ScopeManager(#{object_id}): Activating scope for #{span.id}. Current = #{scopes.keys.inspect}. Active = #{active_span_id}")
         scope
       end
 
@@ -30,6 +31,7 @@ module ExceptionalSynchrony
 
       def deactivate
         self.active_span_id = nil
+        ExceptionHandling.log_info("ScopeManager(#{object_id}): De-activated active scope")
       end
 
       def scopes
@@ -39,7 +41,9 @@ module ExceptionalSynchrony
       private
 
       def remove_scope(span_id)
-        Thread.current["tracing:scopes"] = scopes.delete(span_id)
+        deactivate if active_span_id == span_id
+        scopes.delete(span_id)
+        ExceptionHandling.log_info("ScopeManager(#{object_id}): Removed scope for #{span_id}. Current = #{scopes.keys.inspect}. Active = #{active_span_id}")
       end
 
       def active_span_id
