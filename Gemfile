@@ -11,6 +11,7 @@ group :development do
   gem 'pry'
   gem 'rake'
   gem 'rr',      '~> 1.2'
+  gem 'test_overrides'
   gem 'thor'
   gem 'webmock', '~> 1.24'
 end

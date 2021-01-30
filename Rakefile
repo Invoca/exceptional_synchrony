@@ -3,6 +3,7 @@
 
 require "bundler/gem_tasks"
 require 'rake/testtask'
+require 'rake_test_warning_false'
 
 task default: :test
 
