@@ -8,7 +8,7 @@ All notable changes to this project will be documented in this file.
 
 ## [1.3.0] - UNRELEASED
 ### Added
-- Extend `EMP.defer` to have a new keyword argument (`wait_for_result: false`) in the event that the caller does not want to be blocked until the background thread returns. To preserve existing behavior, by default `EMP.defer` will block in order to return the value (or raise an exception) from the deferred block.
+- Extend `EMP.defer` to have a new keyword argument, `wait_for_result` for the callers to control whether they should should block until the background thread returns. To preserve existing behavior, this option defaults to `true`, so `EMP.defer` will block in order to return the value (or raise an exception) from the deferred block. Callers can pass `false` if they do not need the result and thus don't want to block.
 
 ## [1.2.0] - 2020-06-02
 ### Changed

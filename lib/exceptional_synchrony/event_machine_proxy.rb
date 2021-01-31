@@ -95,9 +95,7 @@ module ExceptionalSynchrony
         EventMachine::Synchrony.sync(deferrable)
         CallbackExceptions.map_deferred_result(deferrable)
       else
-        EventMachine.defer do
-          ExceptionHandling.ensure_completely_safe("defer") { yield }
-        end
+        EventMachine.defer { ExceptionHandling.ensure_completely_safe("defer", &block) }
         nil
       end
     end

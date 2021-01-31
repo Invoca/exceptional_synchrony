@@ -24,6 +24,14 @@ describe ExceptionalSynchrony::EventMachineProxy do
     end
   end
 
+  def stop_em_after_defers_finish!(em)
+    check_finished_counter = 0
+    em.add_periodic_timer(0.1) do
+      (check_finished_counter += 1) > 20 and raise "defer never finished!"
+      em.defers_finished? and em.stop
+    end
+  end
+
   before do
     @em = ExceptionalSynchrony::EventMachineProxy.new(EventMachine, nil)
     @yielded_value = nil
@@ -96,11 +104,11 @@ describe ExceptionalSynchrony::EventMachineProxy do
 
       @em.run do
         assert_nil @em.defer("#defer success", wait_for_result: false) { @block_ran = true; 12 }
-        assert_equal false, @block_ran
-        @em.add_periodic_timer(0.1) { @em.stop if @em.defers_finished? }
+        refute @block_ran
+        stop_em_after_defers_finish!(@em)
       end
 
-      assert_equal true, @block_ran
+      assert @block_ran
     end
 
     it "should handle exceptions when not waiting for its block to run" do
@@ -108,7 +116,7 @@ describe ExceptionalSynchrony::EventMachineProxy do
 
       @em.run do
         assert_nil @em.defer("#defer success", wait_for_result: false) { raise RuntimeError, "error in defer" }
-        @em.add_periodic_timer(0.1) { @em.stop if @em.defers_finished? }
+        stop_em_after_defers_finish!(@em)
       end
     end
 
