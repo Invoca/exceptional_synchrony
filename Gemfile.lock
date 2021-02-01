@@ -114,7 +114,6 @@ GEM
     rr (1.2.1)
     ruby-progressbar (1.10.1)
     safe_yaml (1.0.5)
-    test_overrides (1.0.0)
     thor (1.0.1)
     tzinfo (2.0.4)
       concurrent-ruby (~> 1.0)
@@ -134,7 +133,6 @@ DEPENDENCIES
   pry
   rake
   rr (~> 1.2)
-  test_overrides
   thor
   webmock (~> 1.24)
 

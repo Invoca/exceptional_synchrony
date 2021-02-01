@@ -3,11 +3,11 @@
 
 require "bundler/gem_tasks"
 require 'rake/testtask'
-require 'rake_test_warning_false'
 
 task default: :test
 
 Rake::TestTask.new do |t|
+  t.warning = false
   t.pattern = "test/**/*_test.rb"
 end
 
