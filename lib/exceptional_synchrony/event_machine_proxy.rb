@@ -72,6 +72,7 @@ module ExceptionalSynchrony
     #   :log   - log any rescued StandardError exceptions and continue
     #   :raise - raise FatalRunError for any rescued StandardError exceptions
     def run(on_error: :log, &block)
+      configure_faraday
       case on_error
       when :log   then run_with_error_logging(&block)
       when :raise then run_with_error_raising(&block)
@@ -123,6 +124,12 @@ module ExceptionalSynchrony
     end
 
     private
+
+    def configure_faraday
+      if defined?(Faraday)
+        Faraday.default_adapter = :em_synchrony
+      end
+    end
 
     def run_with_error_logging(&block)
       ensure_completely_safe("run_with_error_logging") do

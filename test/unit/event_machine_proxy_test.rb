@@ -127,6 +127,27 @@ describe ExceptionalSynchrony::EventMachineProxy do
     end
   end
 
+  describe "run with faraday" do
+    it "should conigure Faraday default_adapter to :em_synchrony if Faraday is defined" do
+      class Faraday
+        class << self
+          attr_reader :default_adapter
+
+          def default_adapter=(adapter)
+            @default_adapter = adapter
+          end
+        end
+
+        self.default_adapter = :net_http
+      end
+
+      mock(@em).run_with_error_logging
+      assert_equal :net_http, Faraday.default_adapter
+      @em.run
+      assert_equal :em_synchrony, Faraday.default_adapter
+    end
+  end
+
   { synchrony: SynchronyProxyMock, run: RunProxyMock }.each do |method, proxy_mock|
     describe "run" do
       before do
