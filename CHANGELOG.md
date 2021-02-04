@@ -5,6 +5,12 @@ Inspired by [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 Note: This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 All notable changes to this project will be documented in this file.
+
+## [1.3.0] - UNRELEASED
+### Added
+- For users of `Faraday` connections, its `default_adapter` is configured to `:em_synchrony` when starting
+  the `EventMachine` reactor so that the reactor does not get blocked when using `Faraday`
+
 ## [1.1.1] - 2020-05-03
 - Replace hobo_support with invoca_utils
 
