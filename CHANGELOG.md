@@ -5,10 +5,10 @@ Inspired by [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 Note: This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 All notable changes to this project will be documented in this file.
-## [1.1.1] - 2020-05-03
-- Replace hobo_support with invoca_utils
 
-[1.1.1]: https://github.com/Invoca/exceptional_synchrony/compare/v1.1.0...v1.1.1
+## [1.3.0] - UNRELEASED
+### Added
+- Extend `EMP.defer` to have a new keyword argument, `wait_for_result` for the callers to control whether they should should block until the background thread returns. To preserve existing behavior, this option defaults to `true`, so `EMP.defer` will block in order to return the value (or raise an exception) from the deferred block. Callers can pass `wait_for_result: false` if they do not want to block.
 
 ## [1.2.0] - 2020-06-02
 ### Changed
@@ -21,4 +21,9 @@ All notable changes to this project will be documented in this file.
   We expect that outer edge handler to log the exception chain (the wrapper plus nested `cause` exception(s))
   and exit the process with a non-0 status code.
 
+## [1.1.1] - 2020-05-03
+- Replace hobo_support with invoca_utils
+
+[1.3.0]: https://github.com/Invoca/exceptional_synchrony/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/Invoca/exceptional_synchrony/compare/v1.1.1...v1.2.0
+[1.1.1]: https://github.com/Invoca/exceptional_synchrony/compare/v1.1.0...v1.1.1

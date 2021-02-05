@@ -64,6 +64,10 @@ module ExceptionalSynchrony
       @proxy_class.next_tick { } #Fake out EventMachine's epoll mechanism so we don't block until timers fire
     end
 
+    def defers_finished?
+      @proxy_class.defers_finished?
+    end
+
     def connect(server, port = nil, handler = nil, *args, &block)
       @proxy_class.connect(server, port, handler, *args, &block)
     end
@@ -79,16 +83,21 @@ module ExceptionalSynchrony
       end
     end
 
-    def defer(context, &block)
-      deferrable = EventMachine::DefaultDeferrable.new
+    # This method will execute the block on the background thread pool
+    # By default, it will block the caller until the background thread has finished, so that the result can be returned
+    #  :wait_for_result - setting this to false will prevent the caller from being blocked by this deferred work
+    def defer(context, wait_for_result: true, &block)
+      if wait_for_result
+        deferrable = EventMachine::DefaultDeferrable.new
+        callback = -> (result) { deferrable.succeed(result) }
 
-      callback = -> (result) { deferrable.succeed(result) }
-
-      EventMachine.defer(nil, callback) { CallbackExceptions.return_exception(&block) }
-
-      EventMachine::Synchrony.sync(deferrable)
-
-      CallbackExceptions.map_deferred_result(deferrable)
+        EventMachine.defer(nil, callback) { CallbackExceptions.return_exception(&block) }
+        EventMachine::Synchrony.sync(deferrable)
+        CallbackExceptions.map_deferred_result(deferrable)
+      else
+        EventMachine.defer { ExceptionHandling.ensure_completely_safe("defer", &block) }
+        nil
+      end
     end
 
     def reactor_running?

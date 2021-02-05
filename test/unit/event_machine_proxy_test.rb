@@ -24,6 +24,14 @@ describe ExceptionalSynchrony::EventMachineProxy do
     end
   end
 
+  def stop_em_after_defers_finish!(em)
+    check_finished_counter = 0
+    em.add_periodic_timer(0.1) do
+      (check_finished_counter += 1) > 20 and raise "defer never finished!"
+      em.defers_finished? and em.stop
+    end
+  end
+
   before do
     @em = ExceptionalSynchrony::EventMachineProxy.new(EventMachine, nil)
     @yielded_value = nil
@@ -78,18 +86,41 @@ describe ExceptionalSynchrony::EventMachineProxy do
   end
 
   describe "#defer" do
-    it "should output its block's output when it doesn't raise an error" do
-      ExceptionHandling.logger = Logger.new(STDERR)
+    before do
+      logger = Logger.new(STDERR)
+      logger.extend ContextualLogger::LoggerMixin
+      ExceptionHandling.logger = logger
+    end
 
+    it "should output its block's output when it doesn't raise an error, by default" do
       @em.run do
         assert_equal 12, @em.defer("#defer success") { 12 }
         @em.stop
       end
     end
 
-    it "should raise an error when its block raises an error" do
-      ExceptionHandling.logger = Logger.new(STDERR)
+    it "should not wait for its block to run if option is passed" do
+      @block_ran = false
 
+      @em.run do
+        assert_nil @em.defer("#defer success", wait_for_result: false) { @block_ran = true; 12 }
+        refute @block_ran
+        stop_em_after_defers_finish!(@em)
+      end
+
+      assert @block_ran
+    end
+
+    it "should handle exceptions when not waiting for its block to run" do
+      mock(ExceptionHandling).log_error(is_a(RuntimeError), "defer", {})
+
+      @em.run do
+        assert_nil @em.defer("#defer success", wait_for_result: false) { raise RuntimeError, "error in defer" }
+        stop_em_after_defers_finish!(@em)
+      end
+    end
+
+    it "should raise an error when its block raises an error" do
       @em.run do
         ex = assert_raises(ArgumentError) do
           @em.defer("#defer raising an error") { raise ArgumentError, "!!!" }
