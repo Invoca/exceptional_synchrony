@@ -159,7 +159,7 @@ describe ExceptionalSynchrony::EventMachineProxy do
   end
 
   describe "run with faraday" do
-    it "should conigure Faraday default_adapter to :em_synchrony if Faraday is defined" do
+    before do
       class Faraday
         class << self
           attr_reader :default_adapter
@@ -172,10 +172,25 @@ describe ExceptionalSynchrony::EventMachineProxy do
         self.default_adapter = :net_http
       end
 
-      mock(@em).run_with_error_logging
       assert_equal :net_http, Faraday.default_adapter
+    end
+
+    it "sets Faraday default_adapter to :em_synchrony by default if Faraday is defined" do
+      mock(@em).run_with_error_logging
       @em.run
       assert_equal :em_synchrony, Faraday.default_adapter
+    end
+
+    it "sets Faraday default_adapter to :net_http if Faraday is defined" do
+      mock(@em).run_with_error_logging
+      @em.run(faraday_adapter: :net_http)
+      assert_equal :net_http, Faraday.default_adapter
+    end
+
+    it "raise ArgumentError if the specified faraday_adapter is invalid" do
+      assert_raises(ArgumentError, "Invalid faraday_adapter: :bogus") do
+        @em.run(faraday_adapter: :bogus)
+      end
     end
   end
 

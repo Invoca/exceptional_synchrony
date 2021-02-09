@@ -8,8 +8,8 @@ All notable changes to this project will be documented in this file.
 
 ## [1.4.0] - UNRELEASED
 ### Added
-- For users of `Faraday` connections, its `default_adapter` is configured to `:em_synchrony` when starting
-  the `EventMachine` reactor so that the reactor does not get blocked when using `Faraday`
+- Added `:faraday_adapter` option to `EventMachineProxy#run` with a default of `:em_synchrony`
+  so that the reactor does not get blocked when using `Faraday` connections
 
 ## [1.3.0] - 2021-02-04
 ### Added

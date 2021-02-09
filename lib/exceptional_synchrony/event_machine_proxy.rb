@@ -72,11 +72,16 @@ module ExceptionalSynchrony
       @proxy_class.connect(server, port, handler, *args, &block)
     end
 
+    # This method starts the EventMachine reactor.
     # The on_error option has these possible values:
     #   :log   - log any rescued StandardError exceptions and continue
     #   :raise - raise FatalRunError for any rescued StandardError exceptions
-    def run(on_error: :log, &block)
-      configure_faraday
+    # The faraday_adapter option has these possible values that only apply if Faraday connections are in use:
+    #   :em_synchrony - for use when EM::Synchrony is being used in all threads of the given process
+    #   :net_http     - for use when EM::Synchrony is being used in only some threads of the given process;
+    #                   in this case requests made over the Faraday connection will block the reactor
+    def run(on_error: :log, faraday_adapter: :em_synchrony, &block)
+      configure_faraday(faraday_adapter)
       case on_error
       when :log   then run_with_error_logging(&block)
       when :raise then run_with_error_raising(&block)
@@ -134,9 +139,10 @@ module ExceptionalSynchrony
 
     private
 
-    def configure_faraday
+    def configure_faraday(adapter)
       if defined?(Faraday)
-        Faraday.default_adapter = :em_synchrony
+        adapter.in?([:em_synchrony, :net_http]) or raise ArgumentError, "Invalid faraday_adapter: #{adapter.inspect}"
+        Faraday.default_adapter = adapter
       end
     end
 
