@@ -6,6 +6,7 @@
 # This ensures that the Eventmachine reactor does not get blocked by connection i/o.
 begin
   require 'faraday'
+  require 'ruby2_keywords'
 
   module Faraday
     class RackBuilder
@@ -13,11 +14,13 @@ begin
         return @adapter if klass == NO_ARGUMENT
 
         klass = Faraday::Adapter.lookup_middleware(klass) if klass.is_a?(Symbol)
+
         # BEGIN_PATCH
         if klass == Faraday::Adapter::NetHttp && Thread.current.thread_variable_get(:running_em_synchrony)
           klass = Faraday::Adapter::EMSynchrony
         end
         # END_PATCH
+
         @adapter = self.class::Handler.new(klass, *args, &block)
       end
     end
