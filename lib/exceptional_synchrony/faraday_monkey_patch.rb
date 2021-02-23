@@ -4,24 +4,37 @@
 # If the thread local variable :running_em_synchrony is true, it overrides this method
 # in order to force use of the :em_synchrony adapter rather than the :net_http adapter.
 # This ensures that the Eventmachine reactor does not get blocked by connection i/o.
+# This patch was built against faraday v0.17 and v1.3, although for v1.3 ruby2_keywords
+# usage was dropped in adapter method definition to simplify this code.
 begin
   require 'faraday'
-  require 'ruby2_keywords'
 
   module Faraday
     class RackBuilder
-      ruby2_keywords def adapter(klass = NO_ARGUMENT, *args, &block)
-        return @adapter if klass == NO_ARGUMENT
+      def adapter(klass = NO_ARGUMENT, *args, &block)
+        if Faraday::VERSION[0] == "0"
 
-        klass = Faraday::Adapter.lookup_middleware(klass) if klass.is_a?(Symbol)
+          # BEGIN PATCH
+          key = klass
+          if key == :net_http && Thread.current.thread_variable_get(:running_em_synchrony)
+            key = :em_synchrony
+          end
+          # END PATCH
 
-        # BEGIN_PATCH
-        if klass == Faraday::Adapter::NetHttp && Thread.current.thread_variable_get(:running_em_synchrony)
-          klass = Faraday::Adapter::EMSynchrony
+          use_symbol(Faraday::Adapter, key, *args, &block)
+        else
+          return @adapter if klass == NO_ARGUMENT
+
+          klass = Faraday::Adapter.lookup_middleware(klass) if klass.is_a?(Symbol)
+
+          # BEGIN PATCH
+          if klass == Faraday::Adapter::NetHttp && Thread.current.thread_variable_get(:running_em_synchrony)
+            klass = Faraday::Adapter::EMSynchrony
+          end
+          # END PATCH
+
+          @adapter = self.class::Handler.new(klass, *args, &block)
         end
-        # END_PATCH
-
-        @adapter = self.class::Handler.new(klass, *args, &block)
       end
     end
   end
