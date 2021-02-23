@@ -3,6 +3,7 @@
 require 'eventmachine'
 require 'em-http'
 require 'em-synchrony/em-http'
+require_relative 'faraday_monkey_patch'
 
 module ExceptionalSynchrony
   # It is important for this exception to be inherited from Exception so that
@@ -62,6 +63,7 @@ module ExceptionalSynchrony
     def stop
       @proxy_class.stop
       @proxy_class.next_tick { } #Fake out EventMachine's epoll mechanism so we don't block until timers fire
+      Thread.current.thread_variable_set(:running_em_synchrony, false)
     end
 
     def defers_finished?
@@ -76,12 +78,7 @@ module ExceptionalSynchrony
     # The on_error option has these possible values:
     #   :log   - log any rescued StandardError exceptions and continue
     #   :raise - raise FatalRunError for any rescued StandardError exceptions
-    # The faraday_adapter option has these possible values that only apply if Faraday connections are in use:
-    #   :em_synchrony - for use when EM::Synchrony is being used in all threads of the given process
-    #   :net_http     - for use when EM::Synchrony is being used in only some threads of the given process;
-    #                   in this case requests made over the Faraday connection will block the reactor
-    def run(on_error: :log, faraday_adapter: :em_synchrony, &block)
-      configure_faraday(faraday_adapter)
+    def run(on_error: :log, &block)
       case on_error
       when :log   then run_with_error_logging(&block)
       when :raise then run_with_error_raising(&block)
@@ -139,16 +136,10 @@ module ExceptionalSynchrony
 
     private
 
-    def configure_faraday(adapter)
-      if defined?(Faraday)
-        adapter.in?([:em_synchrony, :net_http]) or raise ArgumentError, "Invalid faraday_adapter: #{adapter.inspect}"
-        Faraday.default_adapter = adapter
-      end
-    end
-
     def run_with_error_logging(&block)
       ensure_completely_safe("run_with_error_logging") do
         if @proxy_class.respond_to?(:synchrony)
+          Thread.current.thread_variable_set(:running_em_synchrony, true)
           @proxy_class.synchrony(&block)
         else
           @proxy_class.run(&block)
@@ -161,6 +152,7 @@ module ExceptionalSynchrony
 
       rescue_exceptions_and_ensure_exit("run_with_error_raising") do
         if @proxy_class.respond_to?(:synchrony)
+          Thread.current.thread_variable_set(:running_em_synchrony, true)
           @proxy_class.synchrony(&run_block)
         else
           @proxy_class.run(&run_block)

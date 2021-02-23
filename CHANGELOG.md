@@ -8,8 +8,7 @@ All notable changes to this project will be documented in this file.
 
 ## [1.4.0] - UNRELEASED
 ### Added
-- Added `:faraday_adapter` option to `EventMachineProxy#run` with a default of `:em_synchrony`
-  so that the reactor does not get blocked when using `Faraday` connections
+- Added use of Thread local variable to indicate when Eventmachine is running using EM::Synchrony
 
 ## [1.3.0] - 2021-02-04
 ### Added
@@ -29,6 +28,7 @@ All notable changes to this project will be documented in this file.
 ## [1.1.1] - 2020-05-03
 - Replace hobo_support with invoca_utils
 
+[1.4.0]: https://github.com/Invoca/exceptional_synchrony/compare/v1.3.0...v1.4.0
 [1.3.0]: https://github.com/Invoca/exceptional_synchrony/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/Invoca/exceptional_synchrony/compare/v1.1.1...v1.2.0
 [1.1.1]: https://github.com/Invoca/exceptional_synchrony/compare/v1.1.0...v1.1.1

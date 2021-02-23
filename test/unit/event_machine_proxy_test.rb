@@ -64,6 +64,14 @@ describe ExceptionalSynchrony::EventMachineProxy do
     @em.stop
   end
 
+  it "should set thread variable :running_em_synchrony running to false when stop" do
+    @em.run do
+      assert_equal true, Thread.current.thread_variable_get(:running_em_synchrony)
+      @em.stop
+      assert_equal false, Thread.current.thread_variable_get(:running_em_synchrony)
+    end
+  end
+
   it "should proxy connect" do
     ServerClass = Class.new
     mock(EventMachine).connect(ServerClass, 8080, :handler, :extra_arg).yields(:called)
@@ -158,42 +166,6 @@ describe ExceptionalSynchrony::EventMachineProxy do
     end
   end
 
-  describe "run with faraday" do
-    before do
-      class Faraday
-        class << self
-          attr_reader :default_adapter
-
-          def default_adapter=(adapter)
-            @default_adapter = adapter
-          end
-        end
-
-        self.default_adapter = :net_http
-      end
-
-      assert_equal :net_http, Faraday.default_adapter
-    end
-
-    it "sets Faraday default_adapter to :em_synchrony by default if Faraday is defined" do
-      mock(@em).run_with_error_logging
-      @em.run
-      assert_equal :em_synchrony, Faraday.default_adapter
-    end
-
-    it "sets Faraday default_adapter to :net_http if Faraday is defined" do
-      mock(@em).run_with_error_logging
-      @em.run(faraday_adapter: :net_http)
-      assert_equal :net_http, Faraday.default_adapter
-    end
-
-    it "raise ArgumentError if the specified faraday_adapter is invalid" do
-      assert_raises(ArgumentError, "Invalid faraday_adapter: :bogus") do
-        @em.run(faraday_adapter: :bogus)
-      end
-    end
-  end
-
   { synchrony: SynchronyProxyMock, run: RunProxyMock }.each do |method, proxy_mock|
     describe "run" do
       before do
@@ -207,12 +179,25 @@ describe ExceptionalSynchrony::EventMachineProxy do
       end
 
       describe "without error" do
+        before do
+          Thread.current.thread_variable_set(:running_em_synchrony, nil)
+        end
+
         [:log, :raise].each do |on_error|
           describe "when using #{method} and on_error = #{on_error}" do
             it "should dispatch to the proxy's synchrony method instead of run iff synchrony" do
               dispatched = false
               assert_equal method, (@proxy.run(on_error: on_error) { dispatched = true })
               assert_equal true, dispatched
+            end
+
+            if method == :synchrony
+              it "should set thread variable :running_em_synchrony running to true" do
+                assert_nil Thread.current.thread_variable_get(:running_em_synchrony)
+                @proxy.run(on_error: on_error) do
+                  assert_equal true, Thread.current.thread_variable_get(:running_em_synchrony)
+                end
+              end
             end
           end
         end
