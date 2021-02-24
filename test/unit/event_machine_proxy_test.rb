@@ -64,11 +64,11 @@ describe ExceptionalSynchrony::EventMachineProxy do
     @em.stop
   end
 
-  it "should set thread variable :running_em_synchrony running to false when stop" do
+  it "should set thread variable :em_synchrony_reactor_thread running to false when stop" do
     @em.run do
-      assert_equal true, Thread.current.thread_variable_get(:running_em_synchrony)
+      assert_equal true, Thread.current.thread_variable_get(:em_synchrony_reactor_thread)
       @em.stop
-      assert_equal false, Thread.current.thread_variable_get(:running_em_synchrony)
+      assert_equal false, Thread.current.thread_variable_get(:em_synchrony_reactor_thread)
     end
   end
 
@@ -180,7 +180,7 @@ describe ExceptionalSynchrony::EventMachineProxy do
 
       describe "without error" do
         before do
-          Thread.current.thread_variable_set(:running_em_synchrony, nil)
+          Thread.current.thread_variable_set(:em_synchrony_reactor_thread, nil)
         end
 
         [:log, :raise].each do |on_error|
@@ -192,10 +192,10 @@ describe ExceptionalSynchrony::EventMachineProxy do
             end
 
             if method == :synchrony
-              it "should set thread variable :running_em_synchrony running to true" do
-                assert_nil Thread.current.thread_variable_get(:running_em_synchrony)
+              it "should set thread variable :em_synchrony_reactor_thread running to true" do
+                assert_nil Thread.current.thread_variable_get(:em_synchrony_reactor_thread)
                 @proxy.run(on_error: on_error) do
-                  assert_equal true, Thread.current.thread_variable_get(:running_em_synchrony)
+                  assert_equal true, Thread.current.thread_variable_get(:em_synchrony_reactor_thread)
                 end
               end
             end

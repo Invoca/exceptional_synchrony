@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # Monkey patch for the Faraday method that creates the adapter used for a connection.
-# If the thread local variable :running_em_synchrony is true, it overrides this method
+# If the thread local variable :em_synchrony_reactor_thread is true, it overrides this method
 # in order to force use of the :em_synchrony adapter rather than the :net_http adapter.
 # This ensures that the Eventmachine reactor does not get blocked by connection i/o.
 # This patch was built against faraday v0.17 and v1.3, although for v1.3 ruby2_keywords
@@ -16,7 +16,7 @@ begin
 
           # BEGIN PATCH
           key = klass
-          if key == :net_http && Thread.current.thread_variable_get(:running_em_synchrony)
+          if key == :net_http && Thread.current.thread_variable_get(:em_synchrony_reactor_thread)
             key = :em_synchrony
           end
           # END PATCH
@@ -28,7 +28,7 @@ begin
           klass = Faraday::Adapter.lookup_middleware(klass) if klass.is_a?(Symbol)
 
           # BEGIN PATCH
-          if klass == Faraday::Adapter::NetHttp && Thread.current.thread_variable_get(:running_em_synchrony)
+          if klass == Faraday::Adapter::NetHttp && Thread.current.thread_variable_get(:em_synchrony_reactor_thread)
             klass = Faraday::Adapter::EMSynchrony
           end
           # END PATCH
