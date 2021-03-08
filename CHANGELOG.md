@@ -6,9 +6,10 @@ Note: This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0
 
 All notable changes to this project will be documented in this file.
 
-## [1.4.0] - UNRELEASED
+## [1.4.0] - 2012-03-08
 ### Added
 - Added use of Thread local variable to indicate when Eventmachine is running using EM::Synchrony
+- Added faraday gem monkey patch to use the new Thread local variable to choose the adapter to use
 
 ## [1.3.0] - 2021-02-04
 ### Added

@@ -1,3 +1,3 @@
 module ExceptionalSynchrony
-  VERSION = '1.4.0.pre.3'
+  VERSION = '1.4.0'
 end
