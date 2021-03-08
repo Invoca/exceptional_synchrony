@@ -3,6 +3,7 @@
 require 'eventmachine'
 require 'em-http'
 require 'em-synchrony/em-http'
+require_relative 'faraday_monkey_patch'
 
 module ExceptionalSynchrony
   # It is important for this exception to be inherited from Exception so that
@@ -62,6 +63,7 @@ module ExceptionalSynchrony
     def stop
       @proxy_class.stop
       @proxy_class.next_tick { } #Fake out EventMachine's epoll mechanism so we don't block until timers fire
+      Thread.current.thread_variable_set(:em_synchrony_reactor_thread, false)
     end
 
     def defers_finished?
@@ -72,6 +74,7 @@ module ExceptionalSynchrony
       @proxy_class.connect(server, port, handler, *args, &block)
     end
 
+    # This method starts the EventMachine reactor.
     # The on_error option has these possible values:
     #   :log   - log any rescued StandardError exceptions and continue
     #   :raise - raise FatalRunError for any rescued StandardError exceptions
@@ -136,6 +139,7 @@ module ExceptionalSynchrony
     def run_with_error_logging(&block)
       ensure_completely_safe("run_with_error_logging") do
         if @proxy_class.respond_to?(:synchrony)
+          Thread.current.thread_variable_set(:em_synchrony_reactor_thread, true)
           @proxy_class.synchrony(&block)
         else
           @proxy_class.run(&block)
@@ -148,6 +152,7 @@ module ExceptionalSynchrony
 
       rescue_exceptions_and_ensure_exit("run_with_error_raising") do
         if @proxy_class.respond_to?(:synchrony)
+          Thread.current.thread_variable_set(:em_synchrony_reactor_thread, true)
           @proxy_class.synchrony(&run_block)
         else
           @proxy_class.run(&run_block)
