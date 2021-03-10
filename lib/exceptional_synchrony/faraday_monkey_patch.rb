@@ -25,8 +25,8 @@ begin
     # Patch built relative to faraday v1.3.0 although the ruby2_keywords prefix
     # was dropped from the adapter method definition to simplify this code
     module FaradayAdapterPatch_v1
-      def adapter(klass = NO_ARGUMENT, *args, &block)
-        return @adapter if klass == NO_ARGUMENT
+      def adapter(klass = Faraday::RackBuilder::NO_ARGUMENT, *args, &block)
+        return @adapter if klass == Faraday::RackBuilder::NO_ARGUMENT
 
         klass = Faraday::Adapter.lookup_middleware(klass) if klass.is_a?(Symbol)
 
@@ -36,7 +36,7 @@ begin
         end
         # END PATCH
 
-        @adapter = self.class::Handler.new(klass, *args, &block)
+        @adapter = Faraday::RackBuilder::Handler.new(klass, *args, &block)
       end
     end
   end
