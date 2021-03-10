@@ -24,7 +24,7 @@ begin
 
     # Patch built relative to faraday v1.3.0 although the ruby2_keywords prefix
     # was dropped from the adapter method definition to simplify this code
-    module FaradayPatch_v1
+    module FaradayAdapterPatch_v1
       def adapter(klass = NO_ARGUMENT, *args, &block)
         return @adapter if klass == NO_ARGUMENT
 
