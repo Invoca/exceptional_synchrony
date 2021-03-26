@@ -8,8 +8,9 @@ module ExceptionalSynchrony
 
       attr_reader :scope_manager
 
-      def initialize
+      def initialize(span_processor: nil)
         @scope_manager = ScopeManager.new(self)
+        @span_processor = span_processor
       end
 
       def start_active_span(operation_name, child_of: nil, references: nil, start_time: Time.now,
@@ -31,6 +32,8 @@ module ExceptionalSynchrony
 
       def on_span_close(span)
         ExceptionHandling.log_info("[SPAN] #{span.context.trace_id}:#{span.context.span_id} \"#{span.operation_name}\" (#{span.elapsed_seconds} sec) { logs = #{span.logs.inspect} }", span: span.to_h)
+        @span_processor.on_finish(self)
+
         #puts("[SPAN] #{span.context.trace_id}:#{span.context.span_id} \"#{span.operation_name}\" (#{span.elapsed_seconds} sec) { logs = #{span.logs.inspect} }")
       end
 

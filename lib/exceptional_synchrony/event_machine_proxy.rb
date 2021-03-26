@@ -13,7 +13,7 @@ module ExceptionalSynchrony
   class FatalRunError < Exception; end
 
   class EventMachineProxy
-    include EMTracing
+    include Tracing
 
     attr_reader :connection
 
@@ -22,11 +22,13 @@ module ExceptionalSynchrony
     WRAP_WITH_ENSURE_COMPLETELY_SAFE = (ENV['RACK_ENV'] != 'test')
     ALLOWED_HOOKS = [:on_schedule, :on_start, :on_exception, :on_end].freeze
 
-    def initialize(proxy_class, connection_class)
+    def initialize(proxy_class, connection_class, service_name: nil)
       @proxy_class = proxy_class
       @synchrony = defined?(@proxy_class::Synchrony) ?  @proxy_class::Synchrony : @proxy_class
       @connection = connection_class
-      disable_hooks!
+      #disable_hooks!
+      enable_hooks!
+
 
       @trace_filtered_caller_labels = ["schedule", "next_tick", "add_timer", "add_periodic_timer"]
 
@@ -156,6 +158,7 @@ module ExceptionalSynchrony
           trace_filtered_caller_labels.exclude?(label)
         end
         if @hooks_enabled && !no_trace
+
           span = OpenTracing.start_span(
             operation_name,
             trace_id: trace_id,

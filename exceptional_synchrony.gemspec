@@ -24,4 +24,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'concurrent-ruby', '~> 1.1'
   spec.add_dependency 'ulid', '~> 1.2'
   spec.add_dependency 'opentracing', '~> 0.5'
+  spec.add_dependency 'opentelemetry-api'
+  spec.add_dependency 'opentelemetry-sdk'
+  spec.add_dependency 'opentelemetry-exporters-jaeger'
 end
