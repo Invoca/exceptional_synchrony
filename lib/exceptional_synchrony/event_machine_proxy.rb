@@ -3,6 +3,7 @@
 require 'eventmachine'
 require 'em-http'
 require 'em-synchrony/em-http'
+require_relative 'faraday_monkey_patch'
 
 require_relative "./em_tracing"
 
@@ -71,12 +72,18 @@ module ExceptionalSynchrony
     def stop
       @proxy_class.stop
       @proxy_class.next_tick { } #Fake out EventMachine's epoll mechanism so we don't block until timers fire
+      Thread.current.thread_variable_set(:em_synchrony_reactor_thread, false)
+    end
+
+    def defers_finished?
+      @proxy_class.defers_finished?
     end
 
     def connect(server, port = nil, handler = nil, *args, &block)
       @proxy_class.connect(server, port, handler, *args, &block)
     end
 
+    # This method starts the EventMachine reactor.
     # The on_error option has these possible values:
     #   :log   - log any rescued StandardError exceptions and continue
     #   :raise - raise FatalRunError for any rescued StandardError exceptions
@@ -88,16 +95,21 @@ module ExceptionalSynchrony
       end
     end
 
-    def defer(context, &block)
-      deferrable = EventMachine::DefaultDeferrable.new
+    # This method will execute the block on the background thread pool
+    # By default, it will block the caller until the background thread has finished, so that the result can be returned
+    #  :wait_for_result - setting this to false will prevent the caller from being blocked by this deferred work
+    def defer(context, wait_for_result: true, &block)
+      if wait_for_result
+        deferrable = EventMachine::DefaultDeferrable.new
+        callback = -> (result) { deferrable.succeed(result) }
 
-      callback = -> (result) { deferrable.succeed(result) }
-
-      EventMachine.defer(nil, callback) { CallbackExceptions.return_exception(&block) }
-
-      EventMachine::Synchrony.sync(deferrable)
-
-      CallbackExceptions.map_deferred_result(deferrable)
+        EventMachine.defer(nil, callback) { CallbackExceptions.return_exception(&block) }
+        EventMachine::Synchrony.sync(deferrable)
+        CallbackExceptions.map_deferred_result(deferrable)
+      else
+        EventMachine.defer { ExceptionHandling.ensure_completely_safe("defer", &block) }
+        nil
+      end
     end
 
     def reactor_running?
@@ -182,6 +194,7 @@ module ExceptionalSynchrony
     def run_with_error_logging(&block)
       ensure_completely_safe("run_with_error_logging") do
         if @proxy_class.respond_to?(:synchrony)
+          Thread.current.thread_variable_set(:em_synchrony_reactor_thread, true)
           @proxy_class.synchrony(&block)
         else
           @proxy_class.run(&block)
@@ -194,6 +207,7 @@ module ExceptionalSynchrony
 
       rescue_exceptions_and_ensure_exit("run_with_error_raising") do
         if @proxy_class.respond_to?(:synchrony)
+          Thread.current.thread_variable_set(:em_synchrony_reactor_thread, true)
           @proxy_class.synchrony(&run_block)
         else
           @proxy_class.run(&run_block)
