@@ -1,24 +1,31 @@
-# This class is for Dependency Injection of EventMachine.  All EventMachine interactions should go through here.
+# frozen_string_literal: true
 
-require_relative "./tracing"
+require "opentelemetry-sdk"
 
 module ExceptionalSynchrony
   module Tracing
     def configure(service_name:, jaeger_address: nil, jaeger_port: nil)
-      OpenTelemetry::SDK.configure do |c|
-        c.service_name = service_name
-        c.use_all
-        if jaeger_address && jaeger_port
-          c.add_span_processor(
-            OpenTelemetry::SDK::Trace::Export::SimpleSpanProcessor.new(
-              OpenTelemetry::Exporters::Jaeger::Exporter.new(
-                service_name: @jaeger_service, host: @jaeger_address, port: @jaeger_port
-              )
-            )
-          )
-        end
+      OpenTelemetry::SDK.configure do |config|
+        config.service_name = service_name
+        # Note: can define middleware here, example:
+        #   config.use 'OpenTelemetry::Instrumentation::Faraday', tracer_middleware: SomeMiddleware
+        #   config.add_span_processor SpanProcessor.new(SomeExporter.new)
+        #   etc
+
+        # TODO: add jaeger export span processor
+        #   config.add_span_processor(
+        #     jaeger_export_processor(service_name, jaeger_address, jaeger_port)
+        #   )
       end
     end
+
+    # def jaeger_export_prococessor(service_name, address, port)
+    #   OpenTelemetry::SDK::Trace::Export::SimpleSpanProcessor.new(
+    #     OpenTelemetry::Exporters::Jaeger::Exporter.new(
+    #       service_name: service_name, host: address, port: port
+    #     )
+    #   )
+    # end
 
     def add_trace_hooks!(hooks, span)
       hooks[:on_schedule] = Array(hooks[:on_schedule]) <<  ->(context) {

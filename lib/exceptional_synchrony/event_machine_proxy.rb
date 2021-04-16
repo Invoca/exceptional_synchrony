@@ -5,15 +5,13 @@ require 'em-http'
 require 'em-synchrony/em-http'
 require_relative 'faraday_monkey_patch'
 
-require_relative "./em_tracing"
-
 module ExceptionalSynchrony
   # It is important for this exception to be inherited from Exception so that
   # when thrown it does not get caught by the EventMachine.error_handler.
   class FatalRunError < Exception; end
 
   class EventMachineProxy
-    include Tracing
+    #include Tracing
 
     attr_reader :connection
 
@@ -147,10 +145,6 @@ module ExceptionalSynchrony
 
     private
 
-    def create_span(operation_name, trace_id: tags:)
-      # TODO
-    end
-
     FILTER_CALLER_LABELS = ["schedule", "next_tick", "add_timer", "add_periodic_timer"].freeze
 
     def schedule(schedule_method, schedule_method_args: [], operation_name: nil,
@@ -161,13 +155,14 @@ module ExceptionalSynchrony
         operation_name = operation_name || caller_locations.map(&:label).find do |label|
           trace_filtered_caller_labels.exclude?(label)
         end
-        if @hooks_enabled && !no_trace
-         create_span(
-            operation_name,
-            trace_id: trace_id,
-            tags: { "schedule_method" => schedule_method, "schedule_method_args" => schedule_method_args }
-          )
-        end
+        # if @hooks_enabled && !no_trace
+        #  create_span(
+        #     operation_name,
+        #     trace_id: trace_id,
+        #     tags: { "schedule_method" => schedule_method, "schedule_method_args" => schedule_method_args }
+        #   )
+        # end
+        span = nil
         hook_context = { schedule_method: schedule_method, schedule_method_args: schedule_method_args }
         add_trace_hooks!(hooks, span) if span
         Array(hooks.delete(:on_schedule)).each { |hook| hook.call(hook_context) }
