@@ -8,11 +8,20 @@ PATH
       eventmachine
       exception_handling (~> 2.2)
       invoca-utils (~> 0.3)
-      opentelemetry-api
-      opentelemetry-exporters-jaeger
-      opentelemetry-sdk
-      opentracing (~> 0.5)
-      ulid (~> 1.2)
+      opentelemetry-api (~> 0.16)
+      opentelemetry-sdk (~> 0.16)
+
+PATH
+  remote: /Users/vdinovi/repo/opentelemetry-ruby/api
+  specs:
+    opentelemetry-api (0.16.0)
+
+PATH
+  remote: /Users/vdinovi/repo/opentelemetry-ruby/sdk
+  specs:
+    opentelemetry-sdk (0.16.0)
+      opentelemetry-api (~> 0.16.0)
+      opentelemetry-common (~> 0.16.0)
 
 GEM
   remote: https://rubygems.org/
@@ -85,17 +94,17 @@ GEM
       activesupport (>= 4.2.0)
     hashdiff (1.0.1)
     http_parser.rb (0.6.0)
-    i18n (1.8.9)
+    i18n (1.8.10)
       concurrent-ruby (~> 1.0)
     invoca-utils (0.4.1)
     json (2.5.1)
-    loofah (2.9.0)
+    loofah (2.9.1)
       crass (~> 1.0.2)
       nokogiri (>= 1.5.9)
     mail (2.7.1)
       mini_mime (>= 0.1.1)
     method_source (1.0.0)
-    mini_mime (1.0.3)
+    mini_mime (1.1.0)
     mini_portile2 (2.5.0)
     minitest (5.14.0)
     minitest-reporters (1.4.2)
@@ -103,16 +112,11 @@ GEM
       builder
       minitest (>= 5.0)
       ruby-progressbar
-    nokogiri (1.11.2)
+    nokogiri (1.11.3)
       mini_portile2 (~> 2.5.0)
       racc (~> 1.4)
-    opentelemetry-api (0.5.1)
-    opentelemetry-exporters-jaeger (0.5.0)
-      opentelemetry-api (~> 0.5.0)
-      thrift
-    opentelemetry-sdk (0.5.1)
-      opentelemetry-api (~> 0.5.0)
-    opentracing (0.5.0)
+    opentelemetry-common (0.16.0)
+      opentelemetry-api (~> 0.16.0)
     pry (0.13.1)
       coderay (~> 1.1)
       method_source (~> 1.0)
@@ -139,10 +143,8 @@ GEM
     ruby-progressbar (1.10.1)
     safe_yaml (1.0.5)
     thor (1.0.1)
-    thrift (0.14.1)
     tzinfo (2.0.4)
       concurrent-ruby (~> 1.0)
-    ulid (1.3.0)
     webmock (1.24.6)
       addressable (>= 2.3.6)
       crack (>= 0.3.2)
@@ -157,6 +159,8 @@ DEPENDENCIES
   exceptional_synchrony!
   minitest
   minitest-reporters
+  opentelemetry-api!
+  opentelemetry-sdk!
   pry (~> 0.13)
   pry-byebug (~> 3.9)
   pry-doc (~> 1.1)

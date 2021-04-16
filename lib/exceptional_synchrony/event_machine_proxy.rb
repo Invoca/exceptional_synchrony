@@ -147,6 +147,10 @@ module ExceptionalSynchrony
 
     private
 
+    def create_span(operation_name, trace_id: tags:)
+      # TODO
+    end
+
     FILTER_CALLER_LABELS = ["schedule", "next_tick", "add_timer", "add_periodic_timer"].freeze
 
     def schedule(schedule_method, schedule_method_args: [], operation_name: nil,
@@ -158,8 +162,7 @@ module ExceptionalSynchrony
           trace_filtered_caller_labels.exclude?(label)
         end
         if @hooks_enabled && !no_trace
-
-          span = OpenTracing.start_span(
+         create_span(
             operation_name,
             trace_id: trace_id,
             tags: { "schedule_method" => schedule_method, "schedule_method_args" => schedule_method_args }
