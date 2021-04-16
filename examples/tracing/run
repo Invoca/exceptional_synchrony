@@ -8,9 +8,11 @@ require "active_support"
 require "pry"
 
 require_relative "./configuration"
+require_relative "./factory"
 require_relative "./app"
 
-config = Tracing::Configuration.parse!
-app = Tracing::App.new(config)
+config  = Tracing::Configuration.parse!
+factory = Tracing::Factory.new(config)
+app     = Tracing::App.new(config, factory)
 app.run!
 
