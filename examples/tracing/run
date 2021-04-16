@@ -1,0 +1,16 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require "rubygems"
+require "bundler/setup"
+
+require "active_support"
+require "pry"
+
+require_relative "./configuration"
+require_relative "./app"
+
+config = Tracing::Configuration.parse!
+app = Tracing::App.new(config)
+app.run!
+
