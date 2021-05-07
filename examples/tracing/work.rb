@@ -17,18 +17,18 @@ module Tracing
       @parent_operation_name = parent_operation_name
     end
 
-    def schedule(trace: false, parent_span_context: nil)
+    def schedule(trace: false, parent_context: nil)
       if trace
-        with_tracing(parent_span_context) { |span| em_schedule(span) }
+        with_tracing(parent_context) { |span| em_schedule(span) }
       else
         em_schedule
       end
     end
 
-    def with_tracing(parent_span_context, &blk)
+    def with_tracing(parent_context, &blk)
       App.trace(
         operation_name,
-        with_parent: parent_span_context,
+        with_parent: parent_context,
         attributes: {
           schedule_method: schedule_method,
           **schedule_args,
@@ -43,7 +43,8 @@ module Tracing
     def run(span = nil)
       rand(0..factory.config.max_depth).times do
         if (subwork = factory.build(depth: depth + 1, parent_operation_name: operation_name))
-          subwork.schedule(trace: true, parent_span_context: span&.context)
+          parent_context = span ? OpenTelemetry::Trace.context_with_span(span) : nil
+          subwork.schedule(trace: true, parent_context: parent_context)
         end
       end
       ExceptionHandling.log_info("[START #{depth}] #{schedule_args[:operation_name]} (from #{parent_operation_name || 'root'})")

@@ -27,8 +27,8 @@ module Tracing
         c.service_name = name
         c.service_version = version
         c.logger = logger
-        #c.add_span_processor jaeger_span_processor("localhost", 14268)
-        c.add_span_processor console_span_processor
+        c.add_span_processor jaeger_span_processor("localhost", 14268)
+        #c.add_span_processor console_span_processor
         c.error_handler = method(:error_handler)
       end
       @tracer = OpenTelemetry.tracer_provider.tracer(name, version)
