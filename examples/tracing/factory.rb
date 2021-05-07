@@ -2,6 +2,8 @@
 
 require "exceptional_synchrony"
 
+require_relative "./work"
+
 module Tracing
   class Factory
 
@@ -12,39 +14,14 @@ module Tracing
       @random   = Random.new(@config.seed)
     end
 
-    Work = Struct.new(:factory, :depth, :schedule_method, :schedule_args, :parent_operation_name) do
-      def schedule
-        ExceptionalSynchrony::EMP.send(schedule_method, **schedule_args) { run }
-      end
-
-      def run
-        rand(0..factory.config.max_depth).times do
-          if (subwork = factory.build(depth: depth + 1, parent_operation_name: schedule_args[:operation_name]))
-            subwork.schedule
-          end
-        end
-        ExceptionHandling.log_info("[START #{depth}] #{schedule_args[:operation_name]} (from #{parent_operation_name || 'root'})")
-        ExceptionalSynchrony::EMP.sleep(rand(0..5))
-        ExceptionHandling.log_info("[END #{depth}]   #{schedule_args[:operation_name]} (from #{parent_operation_name || 'root'})")
-      end
-
-
-
-      def to_h
-        {
-          schedule_method: schedule_method,
-          schedule_args: schedule_args
-        }
-      end
-    end
-
     def build(depth:, parent_operation_name: nil)
       if depth < @config.max_depth
         Work.new(
           self,
+          sample_operation_name,
           depth,
           sample_schedule_method,
-          { operation_name: sample_operation_name },
+          {},
           parent_operation_name
         )
       end

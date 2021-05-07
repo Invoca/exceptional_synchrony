@@ -44,14 +44,12 @@ module ExceptionalSynchrony
       @hooks_enabled = false
     end
 
-    def add_timer(seconds, hooks: {}, operation_name: nil, trace_id: nil, no_trace: false, &block)
-      schedule(:add_timer, schedule_method_args: [seconds], hooks: hooks, operation_name: operation_name,
-               trace_id: trace_id, no_trace: no_trace, &block)
+    def add_timer(seconds, hooks: {}, span: nil, &block)
+      schedule(:add_timer, schedule_method_args: [seconds], hooks: hooks, span: span)
     end
 
-    def add_periodic_timer(*args, hooks: {}, operation_name: nil, trace_id: nil, no_trace: false, &block)
-      schedule(:add_periodic_timer, schedule_method_args: args, hooks: hooks, operation_name: operation_name,
-               trace_id: trace_id, no_trace: no_trace, &block)
+    def add_periodic_timer(*args, hooks: {}, span: nil, &block)
+      schedule(:add_periodic_timer, schedule_method_args: args, hooks: hooks, span: span, &block)
     end
 
     def sleep(seconds)
@@ -64,9 +62,8 @@ module ExceptionalSynchrony
       end
     end
 
-    def next_tick(hooks: {}, operation_name: nil, trace_id: nil, no_trace: false, &block)
-      schedule(:next_tick, hooks: hooks, operation_name: operation_name,
-               trace_id: trace_id, no_trace: no_trace) { block.call }
+    def next_tick(hooks: {}, span: nil, &block)
+      schedule(:next_tick, hooks: hooks, span: span, &block)
     end
 
     def stop
@@ -145,51 +142,37 @@ module ExceptionalSynchrony
 
     private
 
-    FILTER_CALLER_LABELS = ["schedule", "next_tick", "add_timer", "add_periodic_timer"].freeze
-
-    def schedule(schedule_method, schedule_method_args: [], operation_name: nil,
-                 trace_id: nil, no_trace: false, hooks: {}, &block)
-      if !@hooks_enabled && hooks.any?
-        raise ArgumentError, "cannot schedule with hooks when hooks are disabled"
-      else
-        operation_name = operation_name || caller_locations.map(&:label).find do |label|
-          trace_filtered_caller_labels.exclude?(label)
-        end
-        # if @hooks_enabled && !no_trace
-        #  create_span(
-        #     operation_name,
-        #     trace_id: trace_id,
-        #     tags: { "schedule_method" => schedule_method, "schedule_method_args" => schedule_method_args }
-        #   )
-        # end
-        span = nil
-        hook_context = { schedule_method: schedule_method, schedule_method_args: schedule_method_args }
-        add_trace_hooks!(hooks, span) if span
-        Array(hooks.delete(:on_schedule)).each { |hook| hook.call(hook_context) }
-        @synchrony.send(schedule_method, *schedule_method_args) do
-          if span
-            start_span(span) do
-              run_with_hooks(hook_context, **hooks, &block)
-            end
-          else
-            run_with_hooks(hook_context, **hooks, &block)
-          end
-        end
+    def run_hooks!(key, hooks, context)
+      if @hooks_enabled
+        Array(hooks.delete(key)).each { |hook| hook.call(context) }
       end
     end
 
-    def run_with_hooks(context, on_start: nil, on_end: nil, on_exception: nil, &block)
-      Array(on_start).each { |hook| hook.call(context) }
-      result = ensure_completely_safe(context[:schedule_method].to_s) do
+    def schedule(schedule_method, schedule_method_args: [], hooks: {}, span: nil, &block)
+      !@hooks_enabled && (hooks.any? || span) and raise RuntimeError, "hooks are disabled"
+      context = { schedule_method: schedule_method, schedule_method_args: schedule_method_args }
+      set_trace_hooks!(hooks, span) if span
+      run_hooks!(:on_schedule, hooks, context)
+      @synchrony.send(schedule_method, *schedule_method_args) do
+        run_with_hooks(hooks, context, span, &block)
+      end
+    end
+
+    def run_with_hooks(hooks, context, span, &block)
+      binding.pry
+      run_hooks!(:on_start, hooks, context)
+      ensure_completely_safe(context[:schedule_method].to_s) do
         begin
           block.call
         rescue => ex
-          Array(on_exception).each { |hook| hook.call(context, ex) }
+          run_hooks!(:on_exception, hooks, context.merge(exception: ex))
           raise ex
+        else
+          run_hooks!(:on_end, hooks, context)
+        ensure
+          span.finish if span
         end
       end
-      Array(on_end).each { |hook| hook.call(context) }
-      result
     end
 
     def run_with_error_logging(&block)
@@ -214,6 +197,31 @@ module ExceptionalSynchrony
           @proxy_class.run(&run_block)
         end
       end
+    end
+
+    def context_attributes(context)
+      (context || {}).reduce({}) do |ctx, (key, value)|
+        ctx[key.to_s] = value.inspect
+        ctx
+      end
+    end
+
+    def set_trace_hooks!(hooks, span)
+      hooks[:on_schedule] = Array(hooks[:on_schedule]) <<  ->(context) {
+        span.add_event("scheduled", attributes: context_attributes(context))
+      }
+      hooks[:on_start] = Array(hooks[:on_start]) << ->(context) {
+        span.add_event("started", attributes: context_attributes(context))
+      }
+      hooks[:on_exception] = Array(hooks[:on_exception]) << ->(context) {
+        ex = context.delete(:exception) or raise RuntimeError, "context #{context.inspect} does not contain key 'exception'"
+        exception_context = { "ex_class" => ex.class.to_s, "ex_message" => ex.message }
+        span.add_event("exception", attributes: context_attributes(exception_context.merge(context || {})))
+      }
+      hooks[:on_end] = Array(hooks[:on_end]) << ->(context) {
+        span.add_event("ended", attributes: context_attributes(context))
+        span.finish
+      }
     end
   end
 

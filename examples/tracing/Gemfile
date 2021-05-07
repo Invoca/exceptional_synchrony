@@ -3,6 +3,9 @@
 source "https://rubygems.org"
 
 gem "exceptional_synchrony", path: "../.."
+gem "opentelemetry-api", path: "/Users/vdinovi/repo/opentelemetry-ruby/api"
+gem "opentelemetry-sdk", path: "/Users/vdinovi/repo/opentelemetry-ruby/sdk"
+gem "opentelemetry-exporter-jaeger", "~> 0.16.0"
 
 gem "pry", "~> 0.13"
 gem "pry-byebug", "~> 3.9"
