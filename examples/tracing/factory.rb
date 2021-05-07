@@ -10,8 +10,9 @@ module Tracing
     attr_reader :config
 
     def initialize(config)
-      @config   = config
-      @random   = Random.new(@config.seed)
+      @config    = config
+      @random    = Random.new(@config.seed)
+      @ex_chance = config.exception_chance
     end
 
     def build(depth:, parent_operation_name: nil)
@@ -22,16 +23,13 @@ module Tracing
           depth,
           sample_schedule_method,
           {},
-          parent_operation_name
+          parent_operation_name,
+          (sample_exception if rand(100) < @ex_chance)
         )
       end
     end
 
     private
-
-    # def generate_trace_id
-    #   Digest::SHA256.hexdigest(@id.to_s)[0..10]
-    # end
 
     def sample_schedule_method
       SCHEDULE_METHODS.sample
@@ -39,6 +37,10 @@ module Tracing
 
     def sample_operation_name
       "#{VERBS.sample}_#{NOUNS.sample}"
+    end
+
+    def sample_exception
+      RuntimeError.new("#{VERBS.sample}_#{FAILURES.sample}")
     end
 
     SCHEDULE_METHODS = [
@@ -56,6 +58,10 @@ module Tracing
       "network", "disk", "memory", "cpu", "pixels", "drives",
       "sheep", "cows", "pigs", "humans", "mice",
       "chairs"
+    ].freeze
+
+    FAILURES = [
+      "failed", "errored", "blew up", "died", "seg faulted"
     ].freeze
   end
 end

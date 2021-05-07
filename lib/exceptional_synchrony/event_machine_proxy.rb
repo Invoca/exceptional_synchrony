@@ -159,7 +159,6 @@ module ExceptionalSynchrony
     end
 
     def run_with_hooks(hooks, context, span, &block)
-      binding.pry
       run_hooks!(:on_start, hooks, context)
       ensure_completely_safe(context[:schedule_method].to_s) do
         begin
