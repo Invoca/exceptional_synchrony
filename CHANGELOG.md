@@ -6,6 +6,10 @@ Note: This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0
 
 All notable changes to this project will be documented in this file.
 
+## [1.4.3] - Unreleased
+### Changed
+- Update exception_handling to 2.10
+
 ## [1.4.2] - 2021-03-10
 ### Fixed
 - Additional symbol reference fixes in FaradayAdapterPatch_v1
