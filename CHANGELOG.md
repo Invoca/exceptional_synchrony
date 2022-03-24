@@ -6,9 +6,9 @@ Note: This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0
 
 All notable changes to this project will be documented in this file.
 
-## [1.4.3] - Unreleased
+## [1.4.3] - 2022-03-24
 ### Changed
-- Update exception_handling to 2.10
+- Update exception_handling
 
 ## [1.4.2] - 2021-03-10
 ### Fixed
