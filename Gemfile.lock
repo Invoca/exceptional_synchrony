@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    exceptional_synchrony (1.4.3.pre.1)
+    exceptional_synchrony (1.4.3)
       em-http-request
       em-synchrony
       eventmachine
@@ -45,7 +45,7 @@ GEM
     ansi (1.5.0)
     builder (3.2.4)
     coderay (1.1.2)
-    concurrent-ruby (1.1.9)
+    concurrent-ruby (1.1.10)
     contextual_logger (0.11.0)
       activesupport
       json
