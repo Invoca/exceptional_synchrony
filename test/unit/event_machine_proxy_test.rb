@@ -102,7 +102,7 @@ describe ExceptionalSynchrony::EventMachineProxy do
 
     it "should output its block's output when it doesn't raise an error, by default" do
       @em.run do
-        assert_equal 12, @em.defer("#defer success") { 12 }
+        assert_equal 12, @em.defer { 12 }
         @em.stop
       end
     end
@@ -111,7 +111,7 @@ describe ExceptionalSynchrony::EventMachineProxy do
       @block_ran = false
 
       @em.run do
-        assert_nil @em.defer("#defer success", wait_for_result: false) { @block_ran = true; 12 }
+        assert_nil @em.defer(wait_for_result: false) { @block_ran = true; 12 }
         refute @block_ran
         stop_em_after_defers_finish!(@em)
       end
@@ -123,7 +123,7 @@ describe ExceptionalSynchrony::EventMachineProxy do
       mock(ExceptionHandling).log_error(is_a(RuntimeError), "defer", {})
 
       @em.run do
-        assert_nil @em.defer("#defer success", wait_for_result: false) { raise RuntimeError, "error in defer" }
+        assert_nil @em.defer(wait_for_result: false) { raise RuntimeError, "error in defer" }
         stop_em_after_defers_finish!(@em)
       end
     end
@@ -131,7 +131,7 @@ describe ExceptionalSynchrony::EventMachineProxy do
     it "should raise an error when its block raises an error" do
       @em.run do
         ex = assert_raises(ArgumentError) do
-          @em.defer("#defer raising an error") { raise ArgumentError, "!!!" }
+          @em.defer { raise ArgumentError, "!!!" }
         end
 
         assert_equal "!!!", ex.message
