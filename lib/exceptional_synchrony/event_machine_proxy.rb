@@ -89,7 +89,7 @@ module ExceptionalSynchrony
     # This method will execute the block on the background thread pool
     # By default, it will block the caller until the background thread has finished, so that the result can be returned
     #  :wait_for_result - setting this to false will prevent the caller from being blocked by this deferred work
-    def defer(context, wait_for_result: true, &block)
+    def defer(_context = nil, wait_for_result: true, &block)
       if wait_for_result
         deferrable = EventMachine::DefaultDeferrable.new
         callback = -> (result) { deferrable.succeed(result) }
