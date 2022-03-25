@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    exceptional_synchrony (1.4.3)
+    exceptional_synchrony (1.4.4)
       em-http-request
       em-synchrony
       eventmachine
