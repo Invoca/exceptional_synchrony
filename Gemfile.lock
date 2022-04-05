@@ -123,6 +123,7 @@ GEM
     rails-html-sanitizer (1.4.2)
       loofah (~> 2.3)
     rake (13.0.1)
+    rexml (3.2.5)
     rr (1.2.1)
     ruby-progressbar (1.10.1)
     safe_yaml (1.0.5)
@@ -145,6 +146,7 @@ DEPENDENCIES
   minitest-reporters
   pry
   rake
+  rexml
   rr (~> 1.2)
   thor
   webmock (~> 1.24)
