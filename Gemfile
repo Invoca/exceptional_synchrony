@@ -10,6 +10,7 @@ group :development do
   gem 'minitest-reporters'
   gem 'pry'
   gem 'rake'
+  gem 'rexml'
   gem 'rr',      '~> 1.2'
   gem 'thor'
   gem 'webmock', '~> 1.24'
