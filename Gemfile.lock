@@ -114,7 +114,7 @@ GEM
       timeout
     net-smtp (0.3.3)
       net-protocol
-    nokogiri (1.14.2)
+    nokogiri (1.14.3)
       mini_portile2 (~> 2.8.0)
       racc (~> 1.4)
     pry (0.14.2)
