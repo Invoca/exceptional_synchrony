@@ -19,6 +19,6 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'em-synchrony'
   spec.add_dependency 'em-http-request'
   spec.add_dependency 'eventmachine'
-  spec.add_dependency 'exception_handling', '~> 2.10'
+  spec.add_dependency 'exception_handling', '>= 2.10', '< 4.0'
   spec.add_dependency 'invoca-utils', '~> 0.3'
 end

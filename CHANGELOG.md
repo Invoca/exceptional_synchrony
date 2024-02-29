@@ -6,6 +6,10 @@ Note: This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0
 
 All notable changes to this project will be documented in this file.
 
+## [1.4.5] - 2024-02-29
+### Changed
+- Updated dependency on `exception_handling` to allow for the latest version.
+
 ## [1.4.4] - 2022-03-25
 ### Changed
 - Default unused defer(context) argument to nil.
