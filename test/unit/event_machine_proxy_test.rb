@@ -112,7 +112,7 @@ describe ExceptionalSynchrony::EventMachineProxy do
     end
 
     it "should handle exceptions when not waiting for its block to run" do
-      mock(ExceptionHandling).log_error(is_a(RuntimeError), "defer", {})
+      mock(ExceptionHandling).log_error(is_a(RuntimeError), "defer")
 
       @em.run do
         assert_nil @em.defer("#defer success", wait_for_result: false) { raise RuntimeError, "error in defer" }
@@ -140,19 +140,19 @@ describe ExceptionalSynchrony::EventMachineProxy do
     end
 
     it "add_timer" do
-      mock(ExceptionHandling).log_error(EXCEPTION, "add_timer", {})
+      mock(ExceptionHandling).log_error(EXCEPTION, "add_timer")
       mock(EventMachine::Synchrony).add_timer(10) { |duration, *args| args.first.call }
       @em.add_timer(10) { raise EXCEPTION }
     end
 
     it "add_periodic_timer" do
-      mock(ExceptionHandling).log_error(EXCEPTION, "add_periodic_timer", {})
+      mock(ExceptionHandling).log_error(EXCEPTION, "add_periodic_timer")
       mock(EventMachine::Synchrony).add_periodic_timer(10) { |duration, *args| args.first.call }
       @em.add_periodic_timer(10) { raise EXCEPTION }
     end
 
     it "next_tick" do
-      mock(ExceptionHandling).log_error(EXCEPTION, "next_tick", {})
+      mock(ExceptionHandling).log_error(EXCEPTION, "next_tick")
       mock(EventMachine::Synchrony).next_tick { |*args| args.first.call }
       @em.next_tick { raise EXCEPTION }
     end
@@ -189,7 +189,7 @@ describe ExceptionalSynchrony::EventMachineProxy do
 
         describe "when using #{method} and on_error = :log" do
           it "should rescue any exceptions and log them" do
-            mock(ExceptionHandling).log_error(EXCEPTION, "run_with_error_logging", {})
+            mock(ExceptionHandling).log_error(EXCEPTION, "run_with_error_logging")
 
             @proxy.run(on_error: :log) { raise EXCEPTION }
           end
