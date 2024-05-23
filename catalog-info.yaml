@@ -5,7 +5,7 @@ metadata:
   title: ExceptionalSynchrony gem
   annotations:
     github.com/project-slug: Invoca/exceptional_synchrony
-    endoflife.date/products: ruby@3.1
+    endoflife.date/products: ruby@3.3
   tags:
   - ruby
   - open-source

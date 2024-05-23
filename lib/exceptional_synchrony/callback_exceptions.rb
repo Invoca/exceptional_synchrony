@@ -68,7 +68,7 @@ module ExceptionalSynchrony
       end
 
       def error_is_a_timeout?(error)
-        error =~ /timeout/i || error == Errno::ETIMEDOUT
+        error.to_s =~ /timeout/i || error == Errno::ETIMEDOUT
       end
     end
   end
