@@ -2,9 +2,13 @@ apiVersion: backstage.io/v1alpha1
 kind: Component
 metadata:
   name: exceptional_synchrony
+  title: ExceptionalSynchrony gem
   annotations:
     github.com/project-slug: Invoca/exceptional_synchrony
+  tags:
+  - ruby
+  - open-source
 spec:
-  type: other
-  lifecycle: unknown
+  type: library
+  lifecycle: production
   owner: octothorpe
