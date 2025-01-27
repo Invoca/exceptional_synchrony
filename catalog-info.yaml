@@ -25,6 +25,7 @@ metadata:
   - ruby
   - open-source
   - gem
+  - public
   description: ''
 spec:
   type: library
