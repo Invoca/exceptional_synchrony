@@ -39,28 +39,28 @@ describe ExceptionalSynchrony::EventMachineProxy do
   end
 
   it "should proxy add_timer" do
-    mock(EventMachine::Synchrony).add_timer(10)
+    expect(EventMachine::Synchrony).to receive(:add_timer).with(10)
     @em.add_timer(10) { }
   end
 
   it "should proxy add_periodic_timer" do
-    mock(EventMachine::Synchrony).add_periodic_timer(10)
+    expect(EventMachine::Synchrony).to receive(:add_periodic_timer).with(10)
     @em.add_periodic_timer(10) { }
   end
 
   it "should proxy sleep" do
-    mock(EventMachine::Synchrony).sleep(0.001)
+    expect(EventMachine::Synchrony).to receive(:sleep).with(0.001)
     @em.sleep(0.001)
   end
 
   it "should proxy next_tick" do
-    mock(EventMachine::Synchrony).next_tick
+    expect(EventMachine::Synchrony).to receive(:next_tick)
     @em.next_tick { }
   end
 
   it "should proxy stop" do
-    mock(EventMachine).stop
-    mock(EventMachine).next_tick
+    expect(EventMachine).to receive(:stop)
+    expect(EventMachine).to receive(:next_tick)
     @em.stop
   end
 
@@ -74,21 +74,21 @@ describe ExceptionalSynchrony::EventMachineProxy do
 
   it "should proxy connect" do
     ServerClass = Class.new
-    mock(EventMachine).connect(ServerClass, 8080, :handler, :extra_arg).yields(:called)
+    expect(EventMachine).to receive(:connect).with(ServerClass, 8080, :handler, :extra_arg).and_yield(:called)
     @em.connect(ServerClass, 8080, :handler, :extra_arg, &@block)
     expect(@yielded_value).must_equal(:called)
   end
 
   describe "#yield_to_reactor" do
     it "should give control to other threads when the reactor is running" do
-      mock(@em).reactor_running? { true }
-      mock(EventMachine::Synchrony).sleep(0)
+      expect(@em).to receive(:reactor_running?) { true }
+      expect(EventMachine::Synchrony).to receive(:sleep).with(0)
       @em.yield_to_reactor
     end
 
     it "should be a no-op if the reactor is not running" do
-      mock(@em).reactor_running? { false }
-      stub(EventMachine::Synchrony).sleep(0) { raise "Should not sleep!" }
+      expect(@em).to receive(:reactor_running?) { false }
+      allow(EventMachine::Synchrony).to receive(:sleep).with(0).and_raise("Should not sleep!")
       @em.yield_to_reactor
     end
   end
@@ -120,7 +120,7 @@ describe ExceptionalSynchrony::EventMachineProxy do
     end
 
     it "should handle exceptions when not waiting for its block to run" do
-      mock(ExceptionHandling).log_error(is_a(RuntimeError), "defer")
+      expect(ExceptionHandling).to receive(:log_error).with(kind_of(RuntimeError), "defer")
 
       @em.run do
         assert_nil @em.defer(wait_for_result: false) { raise RuntimeError, "error in defer" }
@@ -148,20 +148,20 @@ describe ExceptionalSynchrony::EventMachineProxy do
     end
 
     it "add_timer" do
-      mock(ExceptionHandling).log_error(EXCEPTION, "add_timer")
-      mock(EventMachine::Synchrony).add_timer(10) { |duration, *args| args.first.call }
+      expect(ExceptionHandling).to receive(:log_error).with(EXCEPTION, "add_timer")
+      expect(EventMachine::Synchrony).to receive(:add_timer).with(10).and_wrap_original { |_m, duration, &block| block.call }
       @em.add_timer(10) { raise EXCEPTION }
     end
 
     it "add_periodic_timer" do
-      mock(ExceptionHandling).log_error(EXCEPTION, "add_periodic_timer")
-      mock(EventMachine::Synchrony).add_periodic_timer(10) { |duration, *args| args.first.call }
+      expect(ExceptionHandling).to receive(:log_error).with(EXCEPTION, "add_periodic_timer")
+      expect(EventMachine::Synchrony).to receive(:add_periodic_timer).with(10).and_wrap_original { |_m, duration, &block| block.call }
       @em.add_periodic_timer(10) { raise EXCEPTION }
     end
 
     it "next_tick" do
-      mock(ExceptionHandling).log_error(EXCEPTION, "next_tick")
-      mock(EventMachine::Synchrony).next_tick { |*args| args.first.call }
+      expect(ExceptionHandling).to receive(:log_error).with(EXCEPTION, "next_tick")
+      expect(EventMachine::Synchrony).to receive(:next_tick).and_wrap_original { |_m, &block| block.call }
       @em.next_tick { raise EXCEPTION }
     end
   end
@@ -210,7 +210,7 @@ describe ExceptionalSynchrony::EventMachineProxy do
 
         describe "when using #{method} and on_error = :log" do
           it "should rescue any exceptions and log them" do
-            mock(ExceptionHandling).log_error(EXCEPTION, "run_with_error_logging")
+            expect(ExceptionHandling).to receive(:log_error).with(EXCEPTION, "run_with_error_logging")
 
             @proxy.run(on_error: :log) { raise EXCEPTION }
           end
@@ -228,7 +228,7 @@ describe ExceptionalSynchrony::EventMachineProxy do
   end
 
   it "should proxy reactor_running?" do
-    mock(EventMachine).reactor_running?
+    expect(EventMachine).to receive(:reactor_running?)
     @em.reactor_running?
   end
 end

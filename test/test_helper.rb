@@ -14,7 +14,8 @@ Minitest::Reporters.use! [
 ]
 require 'webmock'
 require 'webmock/minitest'
-require 'rr'
+require 'rspec/mocks/minitest_integration'
+require 'rspec/expectations/minitest_integration'
 
 ActiveSupport::TestCase.test_order = :sorted
 
