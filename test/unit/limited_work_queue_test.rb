@@ -109,7 +109,7 @@ describe ExceptionalSynchrony::LimitedWorkQueue do
     end
 
     it "should ensure that the queue continues to function even when an exception is raised" do
-      mock(ExceptionHandling).log_error(anything, /LimitedWorkQueue encountered an exception/).twice
+      expect(ExceptionHandling).to receive(:log_error).with(anything, /LimitedWorkQueue encountered an exception/).exactly(2).times
       ExceptionalSynchrony::EMP.run_and_stop do
         c = 0
         last_start = nil; end_0 = nil; end_1 = nil
@@ -218,7 +218,7 @@ describe ExceptionalSynchrony::LimitedWorkQueue do
           3.times { @queue.add! { counter+=1 } }
         end
 
-        mock(@queue).work!.never
+        expect(@queue).not_to receive(:work!)
         assert_equal 3, @queue.instance_variable_get("@job_procs").size
         assert_equal 0, counter
       end
@@ -246,7 +246,7 @@ describe ExceptionalSynchrony::LimitedWorkQueue do
         counter = 0
         job_procs = Array.new(3) { Proc.new { counter += 1} }
         @queue.instance_variable_set(:@job_procs, job_procs)
-        mock.proxy(Fiber).new.with_any_args.times(3)
+        expect(Fiber).to receive(:new).exactly(3).times.and_call_original
         @queue.work!
 
         assert_equal 0, @queue.instance_variable_get("@job_procs").size
@@ -259,7 +259,7 @@ describe ExceptionalSynchrony::LimitedWorkQueue do
         job_procs = Array.new(3) { Proc.new { counter += 1} }
         @queue.instance_variable_set(:@job_procs, job_procs)
         assert_equal 3, @queue.instance_variable_get("@job_procs").size
-        mock.proxy(Fiber).new.with_any_args.times(3)
+        expect(Fiber).to receive(:new).exactly(3).times.and_call_original
 
         @queue.work!
 
@@ -268,25 +268,25 @@ describe ExceptionalSynchrony::LimitedWorkQueue do
       end
 
       it 'should not run if queue_empty' do
-        stub(@queue).queue_empty? { true }
+        allow(@queue).to receive(:queue_empty?) { true }
         counter = 0
         job_procs = Array.new(3) { Proc.new { counter += 1} }
         @queue.instance_variable_set(:@job_procs, job_procs)
         assert_equal 3, @queue.instance_variable_get("@job_procs").size
-        mock(Fiber).new.never
+        expect(Fiber).not_to receive(:new)
 
         @queue.work!
         assert_equal 0, counter
       end
 
       it 'should not run if workers are full' do
-        stub(@queue).workers_full? { true }
+        allow(@queue).to receive(:workers_full?) { true }
         counter = 0
         job_procs = Array.new(3) { Proc.new { counter += 1} }
         @queue.instance_variable_set(:@job_procs, job_procs)
 
         assert_equal 3, @queue.instance_variable_get("@job_procs").size
-        mock(Fiber).new.never
+        expect(Fiber).not_to receive(:new)
 
         @queue.work!
         assert_equal 0, counter

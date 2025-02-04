@@ -11,7 +11,8 @@ group :development do
   gem 'pry'
   gem 'rake'
   gem 'rexml'
-  gem 'rr',      '~> 1.2'
+  gem 'rspec-expectations'
+  gem 'rspec-mocks'
   gem 'thor'
   gem 'webmock', '~> 1.24'
 end

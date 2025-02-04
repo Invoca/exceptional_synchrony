@@ -5,7 +5,7 @@ describe ExceptionalSynchrony::CallbackExceptions do
   describe "ensure_callback" do
     it "should execute succeed with return value" do
       deferrable = EM::DefaultDeferrable.new
-      mock(deferrable).succeed(42)
+      expect(deferrable).to receive(:succeed).with(42)
       ExceptionalSynchrony::CallbackExceptions.ensure_callback(deferrable) do
         42
       end
@@ -13,7 +13,7 @@ describe ExceptionalSynchrony::CallbackExceptions do
 
     it "should execute succeed by splatting an array return value" do
       deferrable = EM::DefaultDeferrable.new
-      mock(deferrable).succeed(41, 42)
+      expect(deferrable).to receive(:succeed).with(41, 42)
       ExceptionalSynchrony::CallbackExceptions.ensure_callback(deferrable) do
         [41, 42]
       end
@@ -21,7 +21,7 @@ describe ExceptionalSynchrony::CallbackExceptions do
 
     it "should execute succeed with a double array when you want to return an array value" do
       deferrable = EM::DefaultDeferrable.new
-      mock(deferrable).succeed([41, 42])
+      expect(deferrable).to receive(:succeed).with([41, 42])
       ExceptionalSynchrony::CallbackExceptions.ensure_callback(deferrable) do
         [[41, 42]]
       end
@@ -30,7 +30,7 @@ describe ExceptionalSynchrony::CallbackExceptions do
     it "should execute succeed with the exception that gets raised" do
       deferrable = EM::DefaultDeferrable.new
       exception = ArgumentError.new('Error message')
-      mock(deferrable).succeed(exception)
+      expect(deferrable).to receive(:succeed).with(exception)
       ExceptionalSynchrony::CallbackExceptions.ensure_callback(deferrable) do
         raise exception
       end
@@ -39,7 +39,7 @@ describe ExceptionalSynchrony::CallbackExceptions do
     it "should execute succeed with the exception that gets raised" do
       deferrable = EM::DefaultDeferrable.new
       exception = ArgumentError.new('Error message')
-      mock(deferrable).succeed(exception)
+      expect(deferrable).to receive(:succeed).with(exception)
       ExceptionalSynchrony::CallbackExceptions.ensure_callback(deferrable) do
         raise exception
       end
@@ -48,7 +48,7 @@ describe ExceptionalSynchrony::CallbackExceptions do
     it "should execute succeed even with a Ruby internal exception (not derived from StandardError)" do
       deferrable = EM::DefaultDeferrable.new
       exception = NoMemoryError.new('Error message')
-      mock(deferrable).succeed(exception)
+      expect(deferrable).to receive(:succeed).with(exception)
       ExceptionalSynchrony::CallbackExceptions.ensure_callback(deferrable) do
         raise exception
       end
