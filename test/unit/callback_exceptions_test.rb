@@ -89,7 +89,12 @@ describe ExceptionalSynchrony::CallbackExceptions do
         result = assert_raises(ExceptionalSynchrony::CallbackExceptions::Failure) do
           ExceptionalSynchrony::CallbackExceptions.map_deferred_result(deferrable)
         end.message
-        expect(result).must_equal("RESULT = {:first=>\"a\", :last=>\"b\"}")
+
+        if Gem::Version.new(RUBY_VERSION) < Gem::Version.new("3.4")
+          expect(result).must_equal("RESULT = {:first=>\"a\", :last=>\"b\"}")
+        else
+          expect(result).must_equal("RESULT = {first: \"a\", last: \"b\"}")
+        end
       end
 
       it "should truncate long failures" do
