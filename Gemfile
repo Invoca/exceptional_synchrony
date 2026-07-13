@@ -13,6 +13,8 @@ group :development do
   gem 'rexml'
   gem 'rspec-expectations'
   gem 'rspec-mocks'
+  gem 'simplecov', '~> 0.22'
+  gem 'simplecov-lcov', '~> 0.8'
   gem 'thor'
   gem 'webmock', '~> 1.24'
 end
