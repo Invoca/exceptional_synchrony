@@ -26,7 +26,7 @@ metadata:
   - open-source
   - gem
   - public
-  description: ''
+  description: Extensions to EventMachine/Synchrony to work well with exceptions
 spec:
   type: library
   lifecycle: production
