@@ -1,3 +1,5 @@
+require_relative "simplecov_helper"
+
 ENV['RACK_ENV'] = 'test'
 
 require 'bundler'
